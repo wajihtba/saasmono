@@ -40,7 +40,17 @@ cp apps/web/.env.example apps/web/.env   # then set NEXT_PUBLIC_SERVER_URL=http:
 pnpm db:start          # docker compose up -d in apps/server → manarah-postgres
 pnpm db:push           # drizzle-kit push (dev path, no migration files)
 pnpm dev:manarah       # turbo -F web -F server dev
+pnpm stop:manarah      # kill the dev servers (ports 3000 + 9001) and the turbo parent
 ```
+
+`stop:manarah` kills the turbo orchestrator first, then whatever holds 3000/9001, then force-kills
+anything still alive after 1s. It deliberately does NOT stop postgres — use `pnpm db:stop` for that,
+mirroring `dev:manarah`, which does not start it either.
+
+The pattern is written `[t]urbo -F web -F server dev` on purpose. Plain `pkill -f 'turbo ...'` matches
+the shell running the script itself, so the script kills its own parent and dies mid-way, leaving the
+`kill -9` sweep unexecuted. The bracket makes the regex match `turbo` while the literal command line
+contains `[t]urbo`, so it cannot match itself.
 
 - Web: http://localhost:9001 · API: http://localhost:3000 · health: GET / and GET /api/health
 - README says `pnpm dev` — that script does NOT exist. Use `dev:manarah` / `dev:web` / `dev:server`.
@@ -69,9 +79,14 @@ Native deps (`canvas` 3.2.0, `bcrypt` 6.0.0) are both N-API, so they are ABI-sta
 majors and need no rebuild on a version bump. Verified loading and functioning on 24: canvas renders
 PNGs, bcrypt hashes and verifies.
 
-Verified on Node 24.18.0 after migration: server and web boot; `/` and `/api/health` return OK;
-sign-in + set-active + all six management endpoints 200; the canvas timetable endpoint produced a
-valid 1400x900 RGBA PNG with correct Arabic RTL rendering, served from `/images/...`.
+Verified on Node 24.18.0 after migration, on a clean slate with `readlink /proc/<pid>/exe` confirming
+v24.18.0 owned port 3000: server and web boot; `/` and `/api/health` return OK; sign-in + set-active
++ all six management endpoints 200; the canvas timetable endpoint produced a valid 1400x900 RGBA PNG
+with correct Arabic RTL rendering, served from `/images/...`.
+
+Watch for stale servers when re-verifying. `tsx watch` survives having its parent killed and will
+re-grab port 3000, so an old process from a previous node version can silently answer your requests.
+Confirm the listener with `readlink -f /proc/$(lsof -ti:3000)/exe` rather than trusting the port.
 
 ### Verified working state (2026-08-04)
 

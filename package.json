@@ -10,6 +10,7 @@
     "build": "turbo build",
     "check-types": "turbo check-types",
     "dev:manarah": "turbo -F web -F server dev",
+    "stop:manarah": "pkill -f '[t]urbo -F web -F server dev' || true; lsof -ti:3000,9001 | xargs -r kill || true; sleep 1; lsof -ti:3000,9001 | xargs -r kill -9 || true; echo 'manarah stopped (ports 3000, 9001)'",
     "dev:raqeem": "turbo -F raqeem-backend -F raqeem-frontend dev",
     "build:manarah": "turbo -F web -F server build",
     "build:raqeem": "turbo -F raqeem-backend -F raqeem-frontend build",
