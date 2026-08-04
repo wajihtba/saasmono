@@ -1,5 +1,5 @@
 # Build stage
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Install build dependencies for canvas and native modules
 RUN apk add --no-cache \
@@ -31,7 +31,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter server build
 
 # Production stage
-FROM node:22-alpine AS runner
+FROM node:24-alpine AS runner
 
 # Install runtime dependencies AND build dependencies for canvas
 RUN apk add --no-cache \

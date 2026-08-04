@@ -46,24 +46,32 @@ pnpm dev:manarah       # turbo -F web -F server dev
 - README says `pnpm dev` — that script does NOT exist. Use `dev:manarah` / `dev:web` / `dev:server`.
 - Global CLAUDE.md says yarn; repo is pnpm-only (pnpm-lock.yaml + pnpm-workspace.yaml). Use pnpm.
 
-### pnpm must be on PATH for the active node version
+### Node version
 
-`pnpm` is installed only under nvm node v16.19.1 / v20.13.1 / v20.18.0. If the active node lacks it
-(e.g. v20.19.4), every turbo task dies with:
+Node 24 (`.nvmrc` = `24`, `engines.node: ">=24"` in root and all five app packages, Dockerfiles on
+`node:24-alpine`). Migrated from 22/20 on 2026-08-04 and verified end to end — see below.
+
+```bash
+nvm use            # picks up .nvmrc
+corepack enable    # puts pnpm 10.16.1 on PATH for this node version
+```
+
+`corepack enable` is required per node version, not once globally. Without it every turbo task dies:
 
 ```
 x Unable to find package manager binary: cannot find binary path
 ```
 
-Fix: `corepack enable` under the active version, or `nvm use 20.18.0`. `corepack pnpm <script>` alone
-is not enough — turbo shells out and re-resolves `pnpm` itself.
+`corepack pnpm <script>` is not a substitute — turbo shells out and re-resolves `pnpm` itself, so
+`pnpm dev:manarah` only works once the shim exists on PATH.
 
-Bypass while unfixed (run per app, skipping turbo):
+Native deps (`canvas` 3.2.0, `bcrypt` 6.0.0) are both N-API, so they are ABI-stable across node
+majors and need no rebuild on a version bump. Verified loading and functioning on 24: canvas renders
+PNGs, bcrypt hashes and verifies.
 
-```bash
-cd apps/server && corepack pnpm exec tsx watch --env-file=.env src/index.ts
-cd apps/web    && corepack pnpm exec next dev --turbopack --port=3001
-```
+Verified on Node 24.18.0 after migration: server and web boot; `/` and `/api/health` return OK;
+sign-in + set-active + all six management endpoints 200; the canvas timetable endpoint produced a
+valid 1400x900 RGBA PNG with correct Arabic RTL rendering, served from `/images/...`.
 
 ### Verified working state (2026-08-04)
 
@@ -365,6 +373,30 @@ The `manarah_test` database is not created by docker-compose; create it:
 Test files: routers/managment/{students,teachers,user}.test.ts, services/managment/users.test.ts.
 `tests/helpers/init.ts` seeds org/users/education via better-auth + seedEducation utils.
 
+Vitest does not load `.env`, so the suite needs env exported first:
+
+```bash
+cd apps/server
+set -a && . ./.env && set +a
+export TEST_DATABASE_URL=postgresql://postgres:password@localhost:5432/manarah_test
+pnpm exec vitest run
+```
+
+**The suite is currently red and flaky, on both Node 20 and 24.** `services/managment/users.test.ts`
+passes; the three router suites (students, teachers, user) fail. Failures are assertion mismatches
+(e.g. expected 404, got 400), not runtime errors. Per-test counts differ between identical runs
+because a failing `beforeAll` cascades into different skip counts, so compare at file level, not test
+count. Baselined against Node 20 on a freshly recreated `manarah_test` — identical file-level
+outcome, so this predates the Node 24 migration.
+
+### Typecheck is also red pre-existing
+
+`pnpm check-types` fails. Counts on Node 24: server 32, web 57, raqeem-backend 5, raqeem-frontend 93,
+native 0. None reference node globals or `@types/node`. The dominant web/raqeem-frontend cause is
+TS2305 `Module '@repo/ui' has no exported member ...` (37 of web's 57); the rest are drizzle insert
+overloads, oRPC output-schema mismatches, and implicit `any`. `apps/web/next.config.js` sets
+`typescript.ignoreBuildErrors` and `eslint.ignoreDuringBuilds`, so builds pass regardless.
+
 ## Deployment
 
 `apps/server/Dockerfile` — multi-stage node:22-alpine, alpine build deps for node-canvas
@@ -380,7 +412,7 @@ the referenced deployment dir/script are not in this repo.
 
 1. `pnpm dev` doesn't exist → `pnpm dev:manarah`.
 2. Every turbo task dies with `Unable to find package manager binary` when the active nvm node has no
-   `pnpm` on PATH. `corepack enable` or `nvm use 20.18.0`.
+   `pnpm` on PATH. Run `corepack enable` once per node version.
 3. `pnpm seed:users` fails with `Secret not found: BETTER_AUTH_SECRET` — ESM hoists `import { auth }`
    above `config()` in users.ts. Run with `tsx --env-file=.env`.
 4. Omitting SERVER_URL / JWT_SECRET from `.env` → late-pass tickets throw, timetable image URLs
@@ -404,3 +436,6 @@ the referenced deployment dir/script are not in this repo.
 17. Directory spelled `managment` throughout.
 18. Real-looking secrets committed in `.env.example` files.
 19. IMPLEMENTATION_SUMMARY.md is stale (Quill, migration 0006); README is unmodified BTS boilerplate.
+20. `pnpm check-types` and `pnpm -F server test` are both red before you touch anything. Don't read
+    either as caused by your change — diff against these baselines.
+21. Vitest doesn't load `.env`; export it manually or the suite dies on `BETTER_AUTH_SECRET`.
