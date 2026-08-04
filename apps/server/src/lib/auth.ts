@@ -12,7 +12,7 @@ import * as schema from '../db/schema/auth'
 
 // Parse CORS_ORIGIN to support multiple origins (comma-separated)
 const getTrustedOrigins = (): string[] => {
-  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3001'
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:9001'
   const webOrigins = corsOrigin.split(',').map((origin) => origin.trim())
   return [...webOrigins, 'mybettertapp://', 'exp://']
 }

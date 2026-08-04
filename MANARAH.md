@@ -13,7 +13,7 @@ raqeem was added later. Scaffolded by Better-T-Stack v2.45.3 (`bts.jsonc`).
 ## Stack
 
 - pnpm 10.16.1 + Turborepo 2.5
-- Backend: Node 22, Express 5, oRPC 1.8 (RPC + OpenAPI handlers), Drizzle ORM 0.44, PostgreSQL, Zod 4
+- Backend: Node 24, Express 5, oRPC 1.8 (RPC + OpenAPI handlers), Drizzle ORM 0.44, PostgreSQL, Zod 4
 - Auth: better-auth 1.3 + plugins: admin, anonymous, openAPI, username, organization, expo
 - Frontend: Next.js 15.5 (App Router, Turbopack), React 19, TanStack Query + oRPC tanstack adapter,
   Tailwind 4, shadcn/radix, TipTap editor, recharts, PWA
@@ -25,7 +25,7 @@ raqeem was added later. Scaffolded by Better-T-Stack v2.45.3 (`bts.jsonc`).
 | Thing | Port |
 |---|---|
 | manarah server | 3000 |
-| manarah web | 3001 |
+| manarah web | 9001 |
 | manarah postgres (docker) | 5432 |
 | raqeem backend | 4000 |
 | raqeem frontend | 4001 |
@@ -42,7 +42,7 @@ pnpm db:push           # drizzle-kit push (dev path, no migration files)
 pnpm dev:manarah       # turbo -F web -F server dev
 ```
 
-- Web: http://localhost:3001 · API: http://localhost:3000 · health: GET / and GET /api/health
+- Web: http://localhost:9001 · API: http://localhost:3000 · health: GET / and GET /api/health
 - README says `pnpm dev` — that script does NOT exist. Use `dev:manarah` / `dev:web` / `dev:server`.
 - Global CLAUDE.md says yarn; repo is pnpm-only (pnpm-lock.yaml + pnpm-workspace.yaml). Use pnpm.
 
@@ -95,7 +95,7 @@ Then `/api/management/{classrooms,teachers/list,students/list,session-instances,
 | NODE_ENV | development | `test` switches db to TEST_DATABASE_URL |
 | DATABASE_URL | postgresql://postgres:password@localhost:5432/manarah | |
 | TEST_DATABASE_URL | .../manarah_test | DB not created by docker-compose — create manually |
-| CORS_ORIGIN | http://localhost:3001 | comma-separated multi-origin supported |
+| CORS_ORIGIN | http://localhost:9001 | comma-separated multi-origin supported |
 | BETTER_AUTH_SECRET | (checked into .env.example) | also readable from `${VAR}_FILE` (Docker Swarm secrets) |
 | BETTER_AUTH_URL | http://localhost:3000 | |
 | SERVER_URL | http://localhost:3000 | timetable image absolute URLs |
