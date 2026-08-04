@@ -2,7 +2,7 @@ name: manarah
 
 services:
   postgres:
-    image: postgres
+    image: postgres:17
     container_name: manarah-postgres
     environment:
       POSTGRES_DB: manarah
