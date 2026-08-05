@@ -1,9 +1,10 @@
 import { z } from 'zod'
+import { USER_TYPE_VALUES } from '../db/schema/enums'
 
-// User Types
-export type UserType = 'teacher' | 'student' | 'parent' | 'staff'
+// User Types — single source of truth is the `user_type` Postgres enum.
+export type UserType = (typeof USER_TYPE_VALUES)[number]
 
-export const UserTypeSchema = z.enum(['teacher', 'student', 'parent', 'staff'])
+export const UserTypeSchema = z.enum(USER_TYPE_VALUES)
 
 // Input Schemas
 export const UserUpdateSchema = z.object({

@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getCurrentUserId, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import { Permission } from '../../types/rbac'
 import { createRoomManagementService } from '../../services/managment/rooms'
 import { CreateRoomInputSchema, RoomListItemSchema, RoomSchema, UpdateRoomInputSchema } from '../../types/room'
 
@@ -9,7 +10,7 @@ const roomService = createRoomManagementService(db)
 
 export const roomManagementRouter = {
   // Rooms
-  getRoomsList: protectedProcedure
+  getRoomsList: authorized(Permission.ROOM_READ)
     .output(z.array(RoomListItemSchema))
     .route({
       method: 'GET',
@@ -27,7 +28,7 @@ export const roomManagementRouter = {
       }
     }),
 
-  getRoomById: protectedProcedure
+  getRoomById: authorized(Permission.ROOM_READ)
     .input(
       z.object({
         roomId: z.uuid().describe('Room ID'),
@@ -50,7 +51,7 @@ export const roomManagementRouter = {
       }
     }),
 
-  createRoom: protectedProcedure
+  createRoom: authorized(Permission.ROOM_WRITE)
     .input(CreateRoomInputSchema)
     .output(RoomSchema)
     .route({
@@ -73,7 +74,7 @@ export const roomManagementRouter = {
       }
     }),
 
-  updateRoom: protectedProcedure
+  updateRoom: authorized(Permission.ROOM_WRITE)
     .input(
       z.object({
         roomId: z.uuid().describe('Room ID'),
@@ -101,7 +102,7 @@ export const roomManagementRouter = {
       }
     }),
 
-  deleteRoom: protectedProcedure
+  deleteRoom: authorized(Permission.ROOM_DELETE)
     .input(
       z.object({
         roomId: z.uuid().describe('Room ID'),

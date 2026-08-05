@@ -9,6 +9,8 @@ import { openAPI } from 'better-auth/plugins'
 
 import { admin, anonymous, organization, username } from 'better-auth/plugins'
 import * as schema from '../db/schema/auth'
+import { Role } from '../types/rbac'
+import { ac, orgRoles } from './permissions'
 
 // Parse CORS_ORIGIN to support multiple origins (comma-separated)
 const getTrustedOrigins = (): string[] => {
@@ -54,7 +56,11 @@ const betterAuthOptions: BetterAuthOptions = {
     anonymous(),
     openAPI(),
     username(),
-    organization(),
+    organization({
+      ac,
+      roles: orgRoles,
+      creatorRole: Role.OWNER,
+    }),
 
     expo(),
 

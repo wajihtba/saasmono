@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import { assertClassroomVisible, resolveScope, visibleClassroomIds } from '../../lib/scope'
+import { Permission } from '../../types/rbac'
 import { createClassroomManagementService } from '../../services/managment/classrooms'
 import { ClassroomGroupListItemSchema, ClassroomListItemSchema, ClassroomSchema } from '../../types/classroom'
 
@@ -9,7 +11,7 @@ const classroomService = createClassroomManagementService(db)
 
 export const classroomManagementRouter = {
   // Classrooms
-  getClassroomsList: protectedProcedure
+  getClassroomsList: authorized(Permission.CLASSROOM_READ)
     .input(
       z.object({
         search: z.string().optional().describe('Search term to filter classrooms by name, education level, or academic year'),
@@ -25,14 +27,18 @@ export const classroomManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      const allowedClassroomIds = await visibleClassroomIds(resolveScope(context))
       try {
-        return await classroomService.getClassroomsList(orgId, input?.search)
+        const classrooms = await classroomService.getClassroomsList(orgId, input?.search)
+        if (allowedClassroomIds === null) return classrooms
+        const allowed = new Set(allowedClassroomIds)
+        return classrooms.filter((classroom: { id: string }) => allowed.has(classroom.id))
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch classrooms')
       }
     }),
 
-  getClassroomById: protectedProcedure
+  getClassroomById: authorized(Permission.CLASSROOM_READ)
     .input(
       z.object({
         classroomId: z.uuid().describe('Classroom ID'),
@@ -48,6 +54,7 @@ export const classroomManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertClassroomVisible(resolveScope(context), input.classroomId)
       try {
         return await classroomService.getClassroomById(input.classroomId, orgId)
       } catch (error) {
@@ -55,7 +62,7 @@ export const classroomManagementRouter = {
       }
     }),
 
-  getClassroomGroupsList: protectedProcedure
+  getClassroomGroupsList: authorized(Permission.CLASSROOM_READ)
     .input(
       z.object({
         search: z.string().optional().describe('Search term to filter classroom groups by name, classroom name, or academic year'),
@@ -71,8 +78,12 @@ export const classroomManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      const allowedClassroomIds = await visibleClassroomIds(resolveScope(context))
       try {
-        return await classroomService.getClassroomGroupsList(orgId, input?.search)
+        const groups = await classroomService.getClassroomGroupsList(orgId, input?.search)
+        if (allowedClassroomIds === null) return groups
+        const allowed = new Set(allowedClassroomIds)
+        return groups.filter((group: { classroomId: string }) => allowed.has(group.classroomId))
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch classroom groups')
       }

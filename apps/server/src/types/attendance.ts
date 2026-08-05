@@ -185,7 +185,7 @@ export const AttendanceQuerySchema = z.object({
   classroomId: z.uuid().optional(),
   classroomGroupId: z.uuid().optional(),
   educationSubjectId: z.uuid().optional(),
-  createdByUserType: z.enum(['teacher', 'admin', 'staff']).optional(),
+  createdByUserType: z.enum(['teacher', 'staff']).optional(),
   attendanceCreatedStartDate: z.date().optional(),
   attendanceCreatedEndDate: z.date().optional(),
 })

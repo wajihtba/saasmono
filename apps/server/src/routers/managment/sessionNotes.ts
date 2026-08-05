@@ -1,7 +1,16 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getCurrentUserId, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import {
+  assertAttachmentAuthored,
+  assertSessionNoteAuthored,
+  assertSessionNoteVisible,
+  assertTimetableVisible,
+  filterSessionNotes,
+  resolveScope,
+} from '../../lib/scope'
+import { Permission } from '../../types/rbac'
 import { createSessionNoteManagementService } from '../../services/managment/sessionNotes'
 import {
   CreateSessionNoteAttachmentInputSchema,
@@ -17,7 +26,7 @@ const sessionNoteService = createSessionNoteManagementService(db)
 
 export const sessionNoteManagementRouter = {
   // Session Notes
-  getSessionNotesList: protectedProcedure
+  getSessionNotesList: authorized(Permission.NOTE_READ)
     .input(SessionNoteQuerySchema.optional())
     .output(z.array(SessionNoteListItemSchema))
     .route({
@@ -29,14 +38,16 @@ export const sessionNoteManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      const scope = resolveScope(context)
       try {
-        return await sessionNoteService.getSessionNotesList(orgId, input)
+        const notes = await sessionNoteService.getSessionNotesList(orgId, input)
+        return await filterSessionNotes(scope, notes)
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch session notes')
       }
     }),
 
-  getSessionNoteById: protectedProcedure
+  getSessionNoteById: authorized(Permission.NOTE_READ)
     .input(
       z.object({
         sessionNoteId: z.uuid().describe('Session Note ID'),
@@ -52,6 +63,7 @@ export const sessionNoteManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertSessionNoteVisible(resolveScope(context), input.sessionNoteId)
       try {
         return await sessionNoteService.getSessionNoteById(input.sessionNoteId, orgId)
       } catch (error) {
@@ -59,7 +71,7 @@ export const sessionNoteManagementRouter = {
       }
     }),
 
-  createSessionNote: protectedProcedure
+  createSessionNote: authorized(Permission.NOTE_WRITE)
     .input(CreateSessionNoteInputSchema)
     .output(SessionNoteSchema.omit({
       timetable: true,
@@ -79,6 +91,7 @@ export const sessionNoteManagementRouter = {
       if (!userId) {
         throw OrpcErrorHelper.unauthorized('User ID is required')
       }
+      await assertTimetableVisible(resolveScope(context), input.timetableId)
       try {
         return await sessionNoteService.createSessionNote(input, orgId, userId)
       } catch (error) {
@@ -86,7 +99,7 @@ export const sessionNoteManagementRouter = {
       }
     }),
 
-  updateSessionNote: protectedProcedure
+  updateSessionNote: authorized(Permission.NOTE_WRITE)
     .input(
       z.object({
         sessionNoteId: z.uuid().describe('Session Note ID'),
@@ -111,6 +124,7 @@ export const sessionNoteManagementRouter = {
       if (!userId) {
         throw OrpcErrorHelper.unauthorized('User ID is required')
       }
+      await assertSessionNoteAuthored(resolveScope(context), input.sessionNoteId)
       try {
         return await sessionNoteService.updateSessionNote(input.sessionNoteId, input.data, orgId, userId)
       } catch (error) {
@@ -118,7 +132,7 @@ export const sessionNoteManagementRouter = {
       }
     }),
 
-  deleteSessionNote: protectedProcedure
+  deleteSessionNote: authorized(Permission.NOTE_DELETE)
     .input(
       z.object({
         sessionNoteId: z.uuid().describe('Session Note ID'),
@@ -138,6 +152,7 @@ export const sessionNoteManagementRouter = {
       if (!userId) {
         throw OrpcErrorHelper.unauthorized('User ID is required')
       }
+      await assertSessionNoteAuthored(resolveScope(context), input.sessionNoteId)
       try {
         return await sessionNoteService.deleteSessionNote(input.sessionNoteId, orgId, userId)
       } catch (error) {
@@ -146,7 +161,7 @@ export const sessionNoteManagementRouter = {
     }),
 
   // Session Note Attachments
-  createSessionNoteAttachment: protectedProcedure
+  createSessionNoteAttachment: authorized(Permission.NOTE_WRITE)
     .input(CreateSessionNoteAttachmentInputSchema)
     .output(SessionNoteAttachmentSchema)
     .route({
@@ -162,6 +177,7 @@ export const sessionNoteManagementRouter = {
       if (!userId) {
         throw OrpcErrorHelper.unauthorized('User ID is required')
       }
+      await assertSessionNoteAuthored(resolveScope(context), input.sessionNoteId)
       try {
         return await sessionNoteService.createSessionNoteAttachment(input, orgId, userId)
       } catch (error) {
@@ -169,7 +185,7 @@ export const sessionNoteManagementRouter = {
       }
     }),
 
-  deleteSessionNoteAttachment: protectedProcedure
+  deleteSessionNoteAttachment: authorized(Permission.NOTE_DELETE)
     .input(
       z.object({
         attachmentId: z.uuid().describe('Attachment ID'),
@@ -189,6 +205,7 @@ export const sessionNoteManagementRouter = {
       if (!userId) {
         throw OrpcErrorHelper.unauthorized('User ID is required')
       }
+      await assertAttachmentAuthored(resolveScope(context), input.attachmentId)
       try {
         return await sessionNoteService.deleteSessionNoteAttachment(input.attachmentId, orgId, userId)
       } catch (error) {

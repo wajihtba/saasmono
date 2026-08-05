@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getCurrentUserId, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import { assertClassroomVisible, assertTimetableVisible, resolveScope, visibleTimetableIds } from '../../lib/scope'
+import { Permission } from '../../types/rbac'
 import { createTimetableManagementService } from '../../services/managment/timetable'
 import {
   CreateTimetableInputSchema,
@@ -17,7 +19,7 @@ const timetableService = createTimetableManagementService(db)
 
 export const timetableManagementRouter = {
   // Session Instances
-  getTimetablesList: protectedProcedure
+  getTimetablesList: authorized(Permission.TIMETABLE_READ)
     .input(TimetableQuerySchema.optional())
     .output(z.array(TimetableListItemSchema))
     .route({
@@ -29,14 +31,18 @@ export const timetableManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      const allowedTimetableIds = await visibleTimetableIds(resolveScope(context))
       try {
-        return await timetableService.getTimetablesList(orgId, input)
+        const timetables = await timetableService.getTimetablesList(orgId, input)
+        if (allowedTimetableIds === null) return timetables
+        const allowed = new Set(allowedTimetableIds)
+        return timetables.filter((timetable: { id: string }) => allowed.has(timetable.id))
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch session instances')
       }
     }),
 
-  getTimetableById: protectedProcedure
+  getTimetableById: authorized(Permission.TIMETABLE_READ)
     .input(
       z.object({
         timetableId: z.uuid().describe('Session Instance ID'),
@@ -52,6 +58,7 @@ export const timetableManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertTimetableVisible(resolveScope(context), input.timetableId)
       try {
         return await timetableService.getTimetableById(input.timetableId, orgId)
       } catch (error) {
@@ -59,7 +66,7 @@ export const timetableManagementRouter = {
       }
     }),
 
-  createTimetable: protectedProcedure
+  createTimetable: authorized(Permission.TIMETABLE_WRITE)
     .input(CreateTimetableInputSchema)
     .output(TimetableSchema.omit({
       teacher: true,
@@ -88,7 +95,7 @@ export const timetableManagementRouter = {
       }
     }),
 
-  updateTimetable: protectedProcedure
+  updateTimetable: authorized(Permission.TIMETABLE_WRITE)
     .input(
       z.object({
         timetableId: z.uuid().describe('Session Instance ID'),
@@ -122,7 +129,7 @@ export const timetableManagementRouter = {
       }
     }),
 
-  deleteTimetable: protectedProcedure
+  deleteTimetable: authorized(Permission.TIMETABLE_DELETE)
     .input(
       z.object({
         timetableId: z.uuid().describe('Session Instance ID'),
@@ -149,7 +156,7 @@ export const timetableManagementRouter = {
       }
     }),
 
-  generateTimetableImage: protectedProcedure
+  generateTimetableImage: authorized(Permission.TIMETABLE_READ)
     .input(TimetableImageGenerationRequestSchema)
     .output(TimetableImageResponseSchema)
     .route({
@@ -164,6 +171,9 @@ export const timetableManagementRouter = {
       const userId = getCurrentUserId(context)
       if (!userId) {
         throw OrpcErrorHelper.unauthorized('User ID is required')
+      }
+      if (input.classroomId) {
+        await assertClassroomVisible(resolveScope(context), input.classroomId)
       }
       try {
         return await timetableService.generateTimetableImage(input, orgId, userId)

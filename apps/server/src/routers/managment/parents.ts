@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getCurrentUserId, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import { assertParentVisible, resolveScope, visibleParentIds } from '../../lib/scope'
+import { Permission } from '../../types/rbac'
 import { createParentManagementService } from '../../services/managment/parents'
 import {
   CreateParentStudentRelationSchema,
@@ -15,7 +17,7 @@ import {
 const parentService = createParentManagementService(db)
 
 export const parentManagementRouter = {
-  getParentsList: protectedProcedure
+  getParentsList: authorized(Permission.PARENT_READ)
     .output(z.array(ParentWithChildrenSchema))
     .route({
       method: 'GET',
@@ -26,14 +28,18 @@ export const parentManagementRouter = {
     })
     .handler(async ({ context }) => {
       const orgId = getOrgId(context)
+      const allowedParentIds = await visibleParentIds(resolveScope(context))
       try {
-        return await parentService.getParentsList(orgId)
+        const parents = await parentService.getParentsList(orgId)
+        if (allowedParentIds === null) return parents
+        const allowed = new Set(allowedParentIds)
+        return parents.filter((parent: { id: string }) => allowed.has(parent.id))
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch parents')
       }
     }),
 
-  getParentById: protectedProcedure
+  getParentById: authorized(Permission.PARENT_READ)
     .input(
       z.object({
         parentId: z.string().describe('Parent ID'),
@@ -49,6 +55,7 @@ export const parentManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertParentVisible(resolveScope(context), input.parentId)
       try {
         return await parentService.getParentById(input.parentId, orgId)
       } catch (error) {
@@ -56,7 +63,7 @@ export const parentManagementRouter = {
       }
     }),
 
-  createParentStudentRelation: protectedProcedure
+  createParentStudentRelation: authorized(Permission.PARENT_WRITE)
     .input(CreateParentStudentRelationSchema)
     .output(ParentStudentRelationSchema)
     .route({
@@ -79,7 +86,7 @@ export const parentManagementRouter = {
       }
     }),
 
-  updateParentStudentRelation: protectedProcedure
+  updateParentStudentRelation: authorized(Permission.PARENT_WRITE)
     .input(UpdateParentStudentRelationSchema)
     .output(ParentStudentRelationSchema)
     .route({
@@ -103,7 +110,7 @@ export const parentManagementRouter = {
       }
     }),
 
-  deleteParentStudentRelation: protectedProcedure
+  deleteParentStudentRelation: authorized(Permission.PARENT_WRITE)
     .input(
       z.object({
         relationId: z.uuid().describe('Relation ID'),

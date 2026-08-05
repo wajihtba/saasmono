@@ -6,6 +6,7 @@ import * as usersSchema from '../../src/db/schema/users'
 import * as educationSchema from '../../src/db/schema/education'
 import { seedInstitutionLevels, seedSecondaireEducation } from '../../src/db/seeds/utils/seedEducation'
 import { auth } from '../../src/lib/auth'
+import { Role, type UserType } from '../../src/types/rbac'
 import { testDb } from '../setup'
 
 export interface TestUser {
@@ -14,7 +15,7 @@ export interface TestUser {
   lastName: string
   email: string
   emailVerified: boolean
-  userType: 'admin' | 'staff' | 'student' | 'parent' | 'teacher'
+  userType: UserType
 }
 
 export interface TestAccount {
@@ -36,7 +37,7 @@ export interface TestMember {
   id: string
   organizationId: string
   userId: string
-  role: string
+  role: Role
   createdAt: Date
 }
 
@@ -119,7 +120,9 @@ export const seedDatabase = async (customData?: Partial<SeedData>): Promise<Seed
     id: `member_${user.id}`,
     organizationId: testOrg.id,
     userId: user.id,
-    role: user.userType === 'staff' ? 'admin' : user.userType,
+    // Staff members in tests act as organization admins so existing suites keep
+    // their organization-wide access; everyone else maps one-to-one.
+    role: user.userType === 'staff' ? Role.ADMIN : (user.userType as unknown as Role),
     createdAt: new Date(),
   }))
 
@@ -176,7 +179,8 @@ export const seedDatabase = async (customData?: Partial<SeedData>): Promise<Seed
   return {
     organization: testOrg,
     users: testUsers,
-    admin: testUsers.find((user) => user.userType === 'admin') as TestUser,
+    // Staff is seeded with the organization admin role — see testMembers below.
+    admin: testUsers.find((user) => user.userType === 'staff') as TestUser,
     adminCookie: cookies!,
     accounts: testAccounts,
     members: testMembers,

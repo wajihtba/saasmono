@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getCurrentUserId, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import { resolveScope, visibleTeacherIds } from '../../lib/scope'
+import { Permission } from '../../types/rbac'
 import { createTeacherManagementService } from '../../services/managment/teachers'
 import {
   CreateTeacherAssignmentSchema,
@@ -13,7 +15,7 @@ import {
 const teacherService = createTeacherManagementService(db)
 
 export const teacherManagementRouter = {
-  getTeachersList: protectedProcedure
+  getTeachersList: authorized(Permission.TEACHER_READ)
     .output(z.array(TeacherWithAssignmentsSchema))
     .route({
       method: 'GET',
@@ -24,14 +26,18 @@ export const teacherManagementRouter = {
     })
     .handler(async ({ context }) => {
       const orgId = getOrgId(context)
+      const allowedTeacherIds = await visibleTeacherIds(resolveScope(context))
       try {
-        return await teacherService.getTeachersList(orgId)
+        const teachers = await teacherService.getTeachersList(orgId)
+        if (allowedTeacherIds === null) return teachers
+        const allowed = new Set(allowedTeacherIds)
+        return teachers.filter((teacher: { id: string }) => allowed.has(teacher.id))
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch teachers')
       }
     }),
 
-  createTeacherAssignment: protectedProcedure
+  createTeacherAssignment: authorized(Permission.TEACHER_WRITE)
     .input(CreateTeacherAssignmentSchema)
     .output(TeacherAssignmentSchema)
     .route({
@@ -54,7 +60,7 @@ export const teacherManagementRouter = {
       }
     }),
 
-  updateTeacherAssignment: protectedProcedure
+  updateTeacherAssignment: authorized(Permission.TEACHER_WRITE)
     .input(
       z.object({
         assignmentId: z.uuid().describe('Assignment ID'),
@@ -84,7 +90,7 @@ export const teacherManagementRouter = {
       }
     }),
 
-  deleteTeacherAssignment: protectedProcedure
+  deleteTeacherAssignment: authorized(Permission.TEACHER_WRITE)
     .input(
       z.object({
         assignmentId: z.uuid().describe('Assignment ID'),

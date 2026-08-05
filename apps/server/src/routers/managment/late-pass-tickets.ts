@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getCurrentUserId, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import { assertStudentVisible, resolveScope, visibleStudentIds } from '../../lib/scope'
+import { Permission } from '../../types/rbac'
 import { createLatePassTicketService } from '../../services/managment/late-pass-tickets'
 import {
   CancelTicketInputSchema,
@@ -23,7 +25,7 @@ const latePassTicketService = createLatePassTicketService(db)
 
 export const latePassTicketRouter = {
   // Configuration Management
-  getConfig: protectedProcedure
+  getConfig: authorized(Permission.LATEPASS_READ)
     .output(LatePassConfigSchema)
     .route({
       method: 'GET',
@@ -41,7 +43,7 @@ export const latePassTicketRouter = {
       }
     }),
 
-  updateConfig: protectedProcedure
+  updateConfig: authorized(Permission.LATEPASS_CONFIG)
     .input(UpdateLatePassConfigInputSchema)
     .output(LatePassConfigSchema)
     .route({
@@ -65,7 +67,7 @@ export const latePassTicketRouter = {
     }),
 
   // Student Eligibility
-  getEligibleStudents: protectedProcedure
+  getEligibleStudents: authorized(Permission.LATEPASS_ISSUE)
     .input(GetEligibleStudentsQuerySchema)
     .output(z.array(EligibleStudentSchema))
     .route({
@@ -84,7 +86,7 @@ export const latePassTicketRouter = {
       }
     }),
 
-  getStudentUpcomingTimetables: protectedProcedure
+  getStudentUpcomingTimetables: authorized(Permission.LATEPASS_ISSUE)
     .input(
       z.object({
         studentId: z.string().describe('Student ID'),
@@ -109,7 +111,7 @@ export const latePassTicketRouter = {
     }),
 
   // Ticket Management
-  generateTicket: protectedProcedure
+  generateTicket: authorized(Permission.LATEPASS_ISSUE)
     .input(GenerateTicketInputSchema)
     .output(LatePassTicketSchema)
     .route({
@@ -132,7 +134,7 @@ export const latePassTicketRouter = {
       }
     }),
 
-  getTicketById: protectedProcedure
+  getTicketById: authorized(Permission.LATEPASS_READ)
     .input(
       z.object({
         ticketId: z.uuid().describe('Ticket ID'),
@@ -148,14 +150,17 @@ export const latePassTicketRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      const scope = resolveScope(context)
       try {
-        return await latePassTicketService.getTicketById(input.ticketId, orgId)
+        const ticket = await latePassTicketService.getTicketById(input.ticketId, orgId)
+        await assertStudentVisible(scope, ticket.studentId)
+        return ticket
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch late pass ticket')
       }
     }),
 
-  getTickets: protectedProcedure
+  getTickets: authorized(Permission.LATEPASS_READ)
     .input(GetTicketsQuerySchema.optional())
     .output(z.array(LatePassTicketListItemSchema))
     .route({
@@ -167,14 +172,18 @@ export const latePassTicketRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      const allowedStudentIds = await visibleStudentIds(resolveScope(context))
       try {
-        return await latePassTicketService.getTickets(orgId, input)
+        const tickets = await latePassTicketService.getTickets(orgId, input)
+        if (allowedStudentIds === null) return tickets
+        const allowed = new Set(allowedStudentIds)
+        return tickets.filter((ticket: { studentId: string }) => allowed.has(ticket.studentId))
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch late pass tickets')
       }
     }),
 
-  cancelTicket: protectedProcedure
+  cancelTicket: authorized(Permission.LATEPASS_ISSUE)
     .input(CancelTicketInputSchema)
     .output(LatePassTicketSchema)
     .route({
@@ -198,7 +207,7 @@ export const latePassTicketRouter = {
     }),
 
   // QR Code Validation & Usage
-  validateQRCode: protectedProcedure
+  validateQRCode: authorized(Permission.LATEPASS_VALIDATE)
     .input(ValidateTicketQRInputSchema)
     .output(QRValidationResultSchema)
     .route({
@@ -217,7 +226,7 @@ export const latePassTicketRouter = {
       }
     }),
 
-  useTicket: protectedProcedure
+  useTicket: authorized(Permission.LATEPASS_VALIDATE)
     .input(UseTicketInputSchema)
     .output(
       z.object({
@@ -242,7 +251,7 @@ export const latePassTicketRouter = {
     }),
 
   // Admin Utilities
-  expireOldTickets: protectedProcedure
+  expireOldTickets: authorized(Permission.LATEPASS_CONFIG)
     .output(
       z.object({
         expiredCount: z.number(),

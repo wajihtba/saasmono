@@ -2,7 +2,8 @@ import { z } from 'zod'
 import multer from 'multer'
 import path from 'path'
 import { OrpcErrorHelper, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import { Permission } from '../../types/rbac'
 import {
   TEMP_DIR,
   validateFile,
@@ -45,7 +46,7 @@ const upload = multer({
 
 export const uploadRouter = {
   // Global temp file upload endpoint (reusable)
-  uploadTempFile: protectedProcedure
+  uploadTempFile: authorized(Permission.FILE_UPLOAD)
     .input(z.any()) // Files come from multipart/form-data, not JSON
     .output(
       z.object({

@@ -5,6 +5,7 @@ import pkg from 'pg'
 import { auth } from '../../../lib/auth'
 import * as authSchema from '../../schema/auth'
 import * as usersSchema from '../../schema/users'
+import { Role, type UserType } from '../../../types/rbac'
 config()
 const { Pool } = pkg
 
@@ -14,8 +15,10 @@ interface SeedUser {
   lastName: string
   email: string
   emailVerified: boolean
-  userType: 'admin' | 'staff' | 'student' | 'parent' | 'teacher'
-  role?: string
+  /** Domain label. */
+  userType: UserType
+  /** Organization role — the authorization source of truth. */
+  orgRole: Role
 }
 
 interface SeedAccount {
@@ -37,7 +40,7 @@ interface SeedMember {
   id: string
   organizationId: string
   userId: string
-  role: string
+  role: Role
   createdAt: Date
 }
 
@@ -71,16 +74,27 @@ async function main() {
     createdAt: new Date(),
   }
 
-  // Create users with different roles
+  // Create users, one per organization role so every role is testable
   const users: SeedUser[] = [
-    // 1 Admin user
+    // Institution owner
     {
       id: 'user_admin_001',
       name: 'Admin',
       lastName: 'User',
       email: 'admin@school.com',
       emailVerified: true,
-      userType: 'admin',
+      userType: 'staff',
+      orgRole: Role.OWNER,
+    },
+    // School director
+    {
+      id: 'user_director_001',
+      name: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      email: 'director@school.com',
+      emailVerified: true,
+      userType: 'staff',
+      orgRole: Role.ADMIN,
     },
     // 1 Staff user
     {
@@ -90,6 +104,7 @@ async function main() {
       email: 'staff@school.com',
       emailVerified: true,
       userType: 'staff',
+      orgRole: Role.STAFF,
     },
     // 10 Teachers
     ...Array.from({ length: 10 }, (_, i) => ({
@@ -99,6 +114,7 @@ async function main() {
       email: `teacher${i + 1}@school.com`,
       emailVerified: true,
       userType: 'teacher' as const,
+      orgRole: Role.TEACHER,
     })),
     // 10 Students
     ...Array.from({ length: 10 }, (_, i) => ({
@@ -108,6 +124,7 @@ async function main() {
       email: `student${i + 1}@school.com`,
       emailVerified: true,
       userType: 'student' as const,
+      orgRole: Role.STUDENT,
     })),
     // 5 Parents (10 students / 2 = 5 parents)
     ...Array.from({ length: 5 }, (_, i) => ({
@@ -117,6 +134,7 @@ async function main() {
       email: `parent${i + 1}@school.com`,
       emailVerified: true,
       userType: 'parent' as const,
+      orgRole: Role.PARENT,
     })),
   ]
 
@@ -134,7 +152,7 @@ async function main() {
     id: `member_${user.id}`,
     organizationId: organization.id,
     userId: user.id,
-    role: user.userType === 'admin' ? 'admin' : user.userType,
+    role: user.orgRole,
     createdAt: new Date(),
   }))
 

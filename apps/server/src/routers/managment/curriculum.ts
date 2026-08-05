@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import { Permission } from '../../types/rbac'
 import { createCurriculumManagementService } from '../../services/managment/curriculum'
 import {
   EducationLevelListItemSchema,
@@ -16,7 +17,7 @@ const curriculumService = createCurriculumManagementService(db)
 
 export const curriculumManagementRouter = {
   // Education Subjects
-  getEducationSubjectsList: protectedProcedure
+  getEducationSubjectsList: authorized(Permission.CURRICULUM_READ)
     .output(z.array(EducationSubjectListItemSchema))
     .route({
       method: 'GET',
@@ -34,7 +35,7 @@ export const curriculumManagementRouter = {
       }
     }),
 
-  getEducationSubjectById: protectedProcedure
+  getEducationSubjectById: authorized(Permission.CURRICULUM_READ)
     .input(
       z.object({
         subjectId: z.uuid().describe('Education Subject ID'),
@@ -58,7 +59,7 @@ export const curriculumManagementRouter = {
     }),
 
   // Education Levels
-  getEducationLevelsList: protectedProcedure
+  getEducationLevelsList: authorized(Permission.CURRICULUM_READ)
     .input(z.object({}))
     .output(z.array(EducationLevelListItemSchema))
     .route({
@@ -77,7 +78,7 @@ export const curriculumManagementRouter = {
       }
     }),
 
-  getEducationLevelById: protectedProcedure
+  getEducationLevelById: authorized(Permission.CURRICULUM_READ)
     .input(
       z.object({
         levelId: z.uuid().describe('Education Level ID'),
@@ -101,7 +102,7 @@ export const curriculumManagementRouter = {
     }),
 
   // Institution Levels
-  getInstitutionLevelsList: protectedProcedure
+  getInstitutionLevelsList: authorized(Permission.CURRICULUM_READ)
     .input(z.object({}))
     .output(z.array(InstitutionLevelSchema))
     .route({
@@ -119,7 +120,7 @@ export const curriculumManagementRouter = {
       }
     }),
 
-  getInstitutionLevelById: protectedProcedure
+  getInstitutionLevelById: authorized(Permission.CURRICULUM_READ)
     .input(
       z.object({
         levelId: z.uuid().describe('Institution Level ID'),
@@ -142,7 +143,7 @@ export const curriculumManagementRouter = {
     }),
 
   // Education Level-Subject Associations
-  getEducationLevelSubjectsList: protectedProcedure
+  getEducationLevelSubjectsList: authorized(Permission.CURRICULUM_READ)
     .input(z.object({}))
     .output(z.array(EducationLevelSubjectSchema))
     .route({
@@ -161,7 +162,7 @@ export const curriculumManagementRouter = {
       }
     }),
 
-  getEducationLevelSubjectById: protectedProcedure
+  getEducationLevelSubjectById: authorized(Permission.CURRICULUM_READ)
     .input(
       z.object({
         associationId: z.uuid().describe('Education Level-Subject Association ID'),

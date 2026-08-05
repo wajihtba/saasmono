@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getCurrentUserId, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import { assertStudentVisible, resolveScope, visibleStudentIds } from '../../lib/scope'
+import { Permission } from '../../types/rbac'
 import { createStudentManagementService } from '../../services/managment/students'
 import {
   CreateStudentEnrollmentSchema,
@@ -16,7 +18,7 @@ import {
 const studentService = createStudentManagementService(db)
 
 export const studentManagementRouter = {
-  getStudentById: protectedProcedure
+  getStudentById: authorized(Permission.STUDENT_READ)
     .input(
       z.object({
         // studentId: z.string().uuid().describe('Student ID'), // this does not work since the student ID is a string not a uuid
@@ -35,6 +37,7 @@ export const studentManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertStudentVisible(resolveScope(context), input.studentId)
       try {
         const student = await studentService.getStudentById(input.studentId, orgId)
         return student
@@ -43,7 +46,7 @@ export const studentManagementRouter = {
       }
     }),
 
-  getStudentsList: protectedProcedure
+  getStudentsList: authorized(Permission.STUDENT_READ)
     .input(
       z
         .object({
@@ -63,14 +66,18 @@ export const studentManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      const allowedStudentIds = await visibleStudentIds(resolveScope(context))
       try {
-        return await studentService.getStudentsList(orgId, input)
+        const students = await studentService.getStudentsList(orgId, input)
+        if (allowedStudentIds === null) return students
+        const allowed = new Set(allowedStudentIds)
+        return students.filter((student: { id: string }) => allowed.has(student.id))
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch students')
       }
     }),
 
-  createStudentEnrollment: protectedProcedure
+  createStudentEnrollment: authorized(Permission.STUDENT_WRITE)
     .input(CreateStudentEnrollmentSchema)
     .output(StudentEnrollmentSchema)
     .route({
@@ -93,7 +100,7 @@ export const studentManagementRouter = {
       }
     }),
 
-  updateStudentEnrollmentStatus: protectedProcedure
+  updateStudentEnrollmentStatus: authorized(Permission.STUDENT_WRITE)
     .input(UpdateStudentEnrollmentStatusSchema)
     .output(StudentEnrollmentSchema)
     .route({
@@ -118,7 +125,7 @@ export const studentManagementRouter = {
       }
     }),
 
-  createStudentGroupMembership: protectedProcedure
+  createStudentGroupMembership: authorized(Permission.STUDENT_WRITE)
     .input(CreateStudentGroupMembershipSchema)
     .output(StudentGroupMembershipSchema)
     .route({
@@ -141,7 +148,7 @@ export const studentManagementRouter = {
       }
     }),
 
-  updateStudentGroupMembershipStatus: protectedProcedure
+  updateStudentGroupMembershipStatus: authorized(Permission.STUDENT_WRITE)
     .input(UpdateStudentGroupMembershipStatusSchema)
     .output(StudentGroupMembershipSchema)
     .route({

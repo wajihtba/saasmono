@@ -1,4 +1,5 @@
 import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+import { orgRoleEnum, platformRoleEnum, userTypeEnum } from './enums'
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -12,14 +13,14 @@ export const user = pgTable('user', {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
-  role: text('role'),
+  role: platformRoleEnum('role'),
   banned: boolean('banned').default(false),
   banReason: text('ban_reason'),
   banExpires: timestamp('ban_expires'),
   isAnonymous: boolean('is_anonymous'),
   username: text('username').unique(),
   displayUsername: text('display_username'),
-  userType: text('user_type').notNull(), // student, teacher , staff, parent
+  userType: userTypeEnum('user_type').notNull(),
 })
 
 export const session = pgTable('session', {
@@ -88,7 +89,9 @@ export const member = pgTable('member', {
   userId: text('user_id')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
-  role: text('role').default('member').notNull(), // student, teacher , staff, parent
+  // Authorization source of truth. One role per membership, so the same user
+  // can be a teacher in one organization and a parent in another.
+  role: orgRoleEnum('role').default('student').notNull(),
   createdAt: timestamp('created_at').notNull(),
 })
 
@@ -98,7 +101,7 @@ export const invitation = pgTable('invitation', {
     .notNull()
     .references(() => organization.id, { onDelete: 'cascade' }),
   email: text('email').notNull(),
-  role: text('role'),
+  role: orgRoleEnum('role'),
   status: text('status').default('pending').notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   inviterId: text('inviter_id')

@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typedRoutes: true,
-  // @repo/ui ships TypeScript source, so Next compiles it like app code.
-  transpilePackages: ['@repo/ui'],
+  // @repo/ui and @repo/rbac ship TypeScript source, so Next compiles them like
+  // app code.
+  transpilePackages: ['@repo/ui', '@repo/rbac'],
   // Disable ESLint and TypeScript checks during production builds
   // Run these checks separately in CI/CD pipeline
   eslint: {

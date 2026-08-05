@@ -13,6 +13,14 @@ export class OrpcErrorHelper {
     return new ORPCError('BAD_REQUEST', { message })
   }
 
+  static forbidden(message: string = 'Insufficient permissions') {
+    return new ORPCError('FORBIDDEN', { message })
+  }
+
+  static noOrganizationRole() {
+    return this.forbidden('No role in the active organization')
+  }
+
   static internalError(message: string = 'Internal server error') {
     return new ORPCError('INTERNAL_SERVER_ERROR', { message })
   }
@@ -54,6 +62,11 @@ export class OrpcErrorHelper {
   }
 
   static handleServiceError(error: any, defaultMessage: string = 'Operation failed') {
+    // Authorization failures are already the right error; never let them be
+    // rewritten into a 500 by a surrounding catch.
+    if (error instanceof ORPCError) {
+      return error
+    }
     console.error('========== error', error);
     if (error.message?.includes('not found')) {
       return this.notFound(error.message)

@@ -1,7 +1,17 @@
 import { z } from 'zod'
 import { db } from '../../db/index'
 import { OrpcErrorHelper, getCurrentUserId, getOrgId } from '../../lib/errors/orpc-errors'
-import { protectedProcedure } from '../../lib/orpc'
+import { authorized } from '../../lib/orpc'
+import {
+  assertAttendanceSessionVisible,
+  assertAttendanceVisible,
+  assertStudentVisible,
+  assertTimetableVisible,
+  resolveScope,
+  visibleStudentIds,
+  visibleTimetableIds,
+} from '../../lib/scope'
+import { Permission } from '../../types/rbac'
 import { createAttendanceManagementService } from '../../services/managment/attendances'
 import {
   AttendanceListItemSchema,
@@ -21,7 +31,7 @@ const attendanceService = createAttendanceManagementService(db)
 
 export const attendanceManagementRouter = {
   // Get students for a timetable
-  getStudentsByTimetable: protectedProcedure
+  getStudentsByTimetable: authorized(Permission.ATTENDANCE_READ)
     .input(
       z.object({
         timetableId: z.uuid().describe('Timetable ID'),
@@ -37,6 +47,7 @@ export const attendanceManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertTimetableVisible(resolveScope(context), input.timetableId)
       try {
         return await attendanceService.getStudentsByTimetable(input.timetableId, orgId)
       } catch (error) {
@@ -45,7 +56,7 @@ export const attendanceManagementRouter = {
     }),
 
   // Attendance Sessions
-  getAttendancesList: protectedProcedure
+  getAttendancesList: authorized(Permission.ATTENDANCE_READ)
     .input(AttendanceQuerySchema.optional())
     .output(z.array(AttendanceSessionListItemSchema))
     .route({
@@ -57,14 +68,18 @@ export const attendanceManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      const allowedTimetableIds = await visibleTimetableIds(resolveScope(context))
       try {
-        return await attendanceService.getAttendancesList(orgId, input)
+        const sessions = await attendanceService.getAttendancesList(orgId, input)
+        if (allowedTimetableIds === null) return sessions
+        const allowed = new Set(allowedTimetableIds)
+        return sessions.filter((session: { timetableId: string }) => allowed.has(session.timetableId))
       } catch (error) {
         throw OrpcErrorHelper.handleServiceError(error, 'Failed to fetch attendance sessions')
       }
     }),
 
-  getAttendanceSessionById: protectedProcedure
+  getAttendanceSessionById: authorized(Permission.ATTENDANCE_READ)
     .input(
       z.object({
         sessionId: z.uuid().describe('Attendance Session ID'),
@@ -80,6 +95,7 @@ export const attendanceManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertAttendanceSessionVisible(resolveScope(context), input.sessionId)
       try {
         return await attendanceService.getAttendanceSessionById(input.sessionId, orgId)
       } catch (error) {
@@ -87,7 +103,7 @@ export const attendanceManagementRouter = {
       }
     }),
 
-  getAttendanceById: protectedProcedure
+  getAttendanceById: authorized(Permission.ATTENDANCE_READ)
     .input(
       z.object({
         attendanceId: z.uuid().describe('Attendance ID'),
@@ -103,6 +119,7 @@ export const attendanceManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertAttendanceVisible(resolveScope(context), input.attendanceId)
       try {
         return await attendanceService.getAttendanceById(input.attendanceId, orgId)
       } catch (error) {
@@ -110,7 +127,7 @@ export const attendanceManagementRouter = {
       }
     }),
 
-  createAttendance: protectedProcedure
+  createAttendance: authorized(Permission.ATTENDANCE_WRITE)
     .input(CreateAttendanceInputSchema)
     .output(AttendanceSchema.omit({
       student: true,
@@ -129,6 +146,7 @@ export const attendanceManagementRouter = {
       if (!userId) {
         throw OrpcErrorHelper.unauthorized('User ID is required')
       }
+      await assertTimetableVisible(resolveScope(context), input.timetableId)
       try {
         return await attendanceService.createAttendance(input, orgId, userId)
       } catch (error) {
@@ -136,7 +154,7 @@ export const attendanceManagementRouter = {
       }
     }),
 
-  createBulkAttendance: protectedProcedure
+  createBulkAttendance: authorized(Permission.ATTENDANCE_WRITE)
     .input(CreateBulkAttendanceInputSchema)
     .output(z.object({
       sessionId: z.uuid(),
@@ -157,6 +175,7 @@ export const attendanceManagementRouter = {
       if (!userId) {
         throw OrpcErrorHelper.unauthorized('User ID is required')
       }
+      await assertTimetableVisible(resolveScope(context), input.timetableId)
       try {
         return await attendanceService.createBulkAttendance(input, orgId, userId)
       } catch (error) {
@@ -164,7 +183,7 @@ export const attendanceManagementRouter = {
       }
     }),
 
-  updateAttendance: protectedProcedure
+  updateAttendance: authorized(Permission.ATTENDANCE_WRITE)
     .input(
       z.object({
         attendanceId: z.uuid().describe('Attendance ID'),
@@ -188,6 +207,7 @@ export const attendanceManagementRouter = {
       if (!userId) {
         throw OrpcErrorHelper.unauthorized('User ID is required')
       }
+      await assertAttendanceVisible(resolveScope(context), input.attendanceId)
       try {
         return await attendanceService.updateAttendance(input.attendanceId, input.data, orgId, userId)
       } catch (error) {
@@ -195,7 +215,7 @@ export const attendanceManagementRouter = {
       }
     }),
 
-  deleteAttendance: protectedProcedure
+  deleteAttendance: authorized(Permission.ATTENDANCE_DELETE)
     .input(
       z.object({
         attendanceId: z.uuid().describe('Attendance ID'),
@@ -223,7 +243,7 @@ export const attendanceManagementRouter = {
     }),
 
   // Attendance Summaries and Reports
-  getSessionAttendanceSummary: protectedProcedure
+  getSessionAttendanceSummary: authorized(Permission.ATTENDANCE_READ)
     .input(
       z.object({
         timetableId: z.uuid().describe('Session Instance ID'),
@@ -239,6 +259,7 @@ export const attendanceManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertTimetableVisible(resolveScope(context), input.timetableId)
       try {
         return await attendanceService.getSessionAttendanceSummary(input.timetableId, orgId)
       } catch (error) {
@@ -246,7 +267,7 @@ export const attendanceManagementRouter = {
       }
     }),
 
-  getStudentAttendanceSummary: protectedProcedure
+  getStudentAttendanceSummary: authorized(Permission.ATTENDANCE_READ)
     .input(
       z.object({
         studentId: z.string().describe('Student ID'),
@@ -264,6 +285,7 @@ export const attendanceManagementRouter = {
     })
     .handler(async ({ input, context }) => {
       const orgId = getOrgId(context)
+      await assertStudentVisible(resolveScope(context), input.studentId)
       try {
         return await attendanceService.getStudentAttendanceSummary(
           input.studentId,

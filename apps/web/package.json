@@ -15,6 +15,7 @@
   "dependencies": {
     "@orpc/client": "^1.8.9",
     "@orpc/tanstack-query": "^1.8.9",
+    "@repo/rbac": "workspace:*",
     "@repo/ui": "workspace:*",
     "@tanstack/react-form": "^1.23.0",
     "@tanstack/react-query": "^5.89.0",
