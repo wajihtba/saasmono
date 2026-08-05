@@ -60,7 +60,7 @@ export function NavDocuments({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="w-24 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
+                side={isMobile ? "bottom" : "left"}
                 align={isMobile ? "end" : "start"}
               >
                 <DropdownMenuItem>

@@ -116,7 +116,7 @@ export function TeachersTable({ onEdit, onDelete, onCreateNew }: TeachersTablePr
                         المستوى {classroom.educationLevel.level}
                       </Badge>
                     </div>
-                    <div className="flex flex-wrap gap-1 pl-5">
+                    <div className="flex flex-wrap gap-1 ps-5">
                       {classroom.subjects.slice(0, 3).map((subject) => (
                         <Badge key={subject.id} variant="secondary" className="text-xs">
                           {subject.displayNameAr}
@@ -307,23 +307,19 @@ export function TeachersTable({ onEdit, onDelete, onCreateNew }: TeachersTablePr
           </div>
         )}
       </div>
-
-      <div className="text-muted-foreground ml-2">
-        <Eye className="h-4 w-4" />
-      </div>
     </div>
   )
 
   const emptyStateAction = onCreateNew ? (
     <Button onClick={onCreateNew} className="mt-4">
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إضافة معلم جديد
     </Button>
   ) : null
 
   const headerActions = onCreateNew ? (
     <Button onClick={onCreateNew}>
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إضافة معلم
     </Button>
   ) : null

@@ -102,7 +102,7 @@ export function SessionNotesTable({ onCreateNew }: SessionNotesTableProps) {
           <Badge variant={row.original.isPrivate ? 'secondary' : 'default'} className="text-xs">
             {row.original.isPrivate ? (
               <>
-                <Lock className="ml-1 h-3 w-3" />
+                <Lock className="me-1 h-3 w-3" />
                 خاصة
               </>
             ) : (
@@ -208,7 +208,7 @@ export function SessionNotesTable({ onCreateNew }: SessionNotesTableProps) {
       className="flex items-center bg-white px-4 py-3 transition-colors"
       onClick={() => handleViewNote(row.original.id)}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 mr-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 me-3">
         <BookOpen className="h-5 w-5 text-primary" />
       </div>
 
@@ -225,29 +225,25 @@ export function SessionNotesTable({ onCreateNew }: SessionNotesTableProps) {
           {formatDate(row.original.createdAt)}
           {(row.original.attachmentCount || 0) > 0 && (
             <>
-              <Paperclip className="h-3 w-3 mr-2" />
+              <Paperclip className="h-3 w-3 me-2" />
               {row.original.attachmentCount}
             </>
           )}
         </div>
-      </div>
-
-      <div className="ml-2 text-muted-foreground">
-        <Eye className="h-4 w-4" />
       </div>
     </div>
   )
 
   const emptyStateAction = onCreateNew ? (
     <Button onClick={onCreateNew} className="mt-4">
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إضافة كراس قسم جديد
     </Button>
   ) : null
 
   const headerActions = onCreateNew ? (
     <Button onClick={onCreateNew}>
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إضافة كراس قسم
     </Button>
   ) : null

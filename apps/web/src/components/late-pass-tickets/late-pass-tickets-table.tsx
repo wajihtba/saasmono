@@ -358,7 +358,7 @@ export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProp
             onClick={() => handleDownloadPDF(row.original.pdfPath)}
             className="flex-1"
           >
-            <Download className="h-4 w-4 ml-1" />
+            <Download className="h-4 w-4 me-1" />
             تحميل التذكرة
           </Button>
         )}
@@ -378,14 +378,14 @@ export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProp
 
   const emptyStateAction = onGenerateNew ? (
     <Button onClick={onGenerateNew} className="mt-4">
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إصدار تذكرة جديدة
     </Button>
   ) : null
 
   const headerActions = onGenerateNew ? (
     <Button onClick={onGenerateNew}>
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إصدار تذكرة
     </Button>
   ) : null

@@ -114,7 +114,26 @@ export interface MobileNavProps {
    * Quick actions section title
    */
   quickActionsTitle?: string;
+
+  /**
+   * How many items the bottom bar shows before the rest move into the drawer
+   */
+  maxMainItems?: number;
+
+  /**
+   * Heading for the overflow items inside the drawer
+   */
+  overflowTitle?: string;
 }
+
+// Written out so Tailwind can see the class names.
+const GRID_COLS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+  5: "grid-cols-5",
+};
 
 function ItemNav({
   item,
@@ -187,9 +206,16 @@ export function MobileNav({
   drawerTitle = "القائمة الرئيسية",
   drawerDescription = "الوصول السريع لجميع الميزات والإعدادات",
   quickActionsTitle = "إجراءات سريعة",
+  maxMainItems = 4,
+  overflowTitle = "بقية الأقسام",
 }: MobileNavProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
+
+  // The bar only ever holds maxMainItems + the "more" button; anything past that
+  // moves into the drawer instead of wrapping onto a second row.
+  const barNavItems = mainNavItems.slice(0, maxMainItems);
+  const overflowNavItems = mainNavItems.slice(maxMainItems);
 
   const defaultIsActive = (href: string) => {
     const fullPath = href ? `${basePath}/${href}` : basePath;
@@ -217,10 +243,13 @@ export function MobileNav({
       {/* Mobile Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 lg:hidden pb-3">
         <div
-          className={`grid h-16 ${mainNavItems.length >= 5 ? "grid-cols-5" : `grid-cols-${mainNavItems.length + 1}`}`}
+          className={cn(
+            "grid h-16",
+            GRID_COLS[barNavItems.length + 1] ?? "grid-cols-5",
+          )}
         >
           {/* Main Navigation Items */}
-          {mainNavItems.map((item) => {
+          {barNavItems.map((item) => {
             const active = checkIsActive(item.href, pathname);
             const ItemComponent = ({
               children,
@@ -256,7 +285,7 @@ export function MobileNav({
                     )}
                   />
                 </div>
-                <span className="text-sm font-medium mt-0.5 leading-none">
+                <span className="w-full truncate px-0.5 text-center text-[11px] font-medium mt-0.5 leading-none">
                   {item.title}
                 </span>
                 {active && (
@@ -269,6 +298,7 @@ export function MobileNav({
           {/* More Button with Drawer */}
           {(quickActions.length > 0 ||
             drawerItems.length > 0 ||
+            overflowNavItems.length > 0 ||
             customDrawerContent) && (
             <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
               <DrawerTrigger asChild>
@@ -276,7 +306,7 @@ export function MobileNav({
                   <div className="p-1.5 rounded-lg hover:bg-gray-100">
                     <MoreHorizontal className="h-5 w-5" />
                   </div>
-                  <span className="text-sm font-medium mt-0.5 leading-none">
+                  <span className="w-full truncate px-0.5 text-center text-[11px] font-medium mt-0.5 leading-none">
                     {moreButtonText}
                   </span>
                 </button>
@@ -325,6 +355,26 @@ export function MobileNav({
                                   {action.title}
                                 </span>
                               </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Nav items that did not fit in the bottom bar */}
+                      {overflowNavItems.length > 0 && (
+                        <div className="mb-4">
+                          <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                            {overflowTitle}
+                          </h3>
+                          <div className="space-y-2">
+                            {overflowNavItems.map((item) => (
+                              <ItemNav
+                                key={item.href}
+                                item={item}
+                                basePath={basePath}
+                                active={checkIsActive(item.href, pathname)}
+                                handleNavigation={handleNavigation}
+                              />
                             ))}
                           </div>
                         </div>
@@ -410,8 +460,8 @@ export function MobileNav({
         </div>
       </div>
 
-      {/* Bottom padding for content to avoid bottom nav overlap */}
-      <div className="h-16 lg:hidden" />
+      {/* Bottom padding for content to avoid bottom nav overlap (bar + its pb-3) */}
+      <div className="h-[76px] lg:hidden" />
     </>
   );
 }

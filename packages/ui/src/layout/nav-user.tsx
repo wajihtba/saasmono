@@ -50,12 +50,12 @@ export function NavUser({
                   {user.email}
                 </span>
               </div>
-              <MoreVertical className="ml-auto size-4" />
+              <MoreVertical className="ms-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side={isMobile ? "bottom" : "left"}
             align="end"
             sideOffset={4}
           >

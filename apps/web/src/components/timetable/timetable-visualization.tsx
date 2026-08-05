@@ -5,6 +5,7 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } fro
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Calendar, Download, Filter } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { TimetableFilters } from './timetable-filters'
 import { TimetableGrid } from './timetable-grid'
 
@@ -58,7 +59,7 @@ export function TimetableVisualization() {
         link.click()
         document.body.removeChild(link)
 
-        console.log(`تم تحميل الجدول بنجاح: ${result.message}`)
+        toast.success('تم تحميل الجدول بنجاح')
       } else {
         throw new Error(result.message || 'فشل في إنشاء صورة جدول الحصص')
       }
@@ -68,8 +69,7 @@ export function TimetableVisualization() {
       // Show user-friendly error message
       const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع'
 
-      // You could replace this with a toast notification or modal
-      alert(`خطأ في تحميل الجدول: ${errorMessage}`)
+      toast.error(`خطأ في تحميل الجدول: ${errorMessage}`)
     }
   }
 
@@ -78,7 +78,7 @@ export function TimetableVisualization() {
       {/* Filter Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Filter className="h-5 w-5" />
@@ -89,6 +89,7 @@ export function TimetableVisualization() {
             <Button
               variant="outline"
               size="sm"
+              className="w-full sm:w-auto"
               onClick={() => setShowFilters(!showFilters)}
             >
               {showFilters ? 'إخفاء الفلاتر' : 'إظهار الفلاتر'}
@@ -109,7 +110,7 @@ export function TimetableVisualization() {
       {hasValidFilter ? (
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
@@ -124,7 +125,7 @@ export function TimetableVisualization() {
               <Button
                 onClick={handleDownload}
                 disabled={isLoading || timetableData.length === 0 || generateImageMutation.isPending}
-                className="flex items-center gap-2"
+                className="flex w-full items-center justify-center gap-2 sm:w-auto"
               >
                 <Download className="h-4 w-4" />
                 {generateImageMutation.isPending ? 'جاري إنشاء الصورة...' : 'تحميل كصورة'}
@@ -132,7 +133,7 @@ export function TimetableVisualization() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="bg-white">
+            <div className="bg-background">
               <TimetableGrid
                 timetableData={timetableData}
                 isLoading={isLoading}

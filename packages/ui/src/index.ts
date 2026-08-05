@@ -1,6 +1,8 @@
 // Re-export all components
 export * from "./components/ui";
 export { cn } from "./lib/utils";
+// Radix primitives default to LTR unless this provider wraps the tree.
+export { DirectionProvider } from "@radix-ui/react-direction";
 export {
   DashboardLayout,
   Header,

@@ -174,7 +174,7 @@ function ComboboxButton({
         className={cn(
           "!flex flex-1 min-w-0 w-0 h-12 justify-between text-lg md:text-base",
           !selectedLabel && "text-muted-foreground",
-          clearable && "rounded-l-md rounded-r-none border-r-0",
+          clearable && "rounded-s-md rounded-e-none border-e-0",
           !clearable && "rounded-md",
           className,
         )}
@@ -183,13 +183,13 @@ function ComboboxButton({
         <span className="truncate overflow-hidden text-ellipsis whitespace-nowrap block min-w-0 flex-1 text-start">
           {selectedLabel || placeholder}
         </span>
-        <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ml-2" />
+        <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ms-2" />
       </Button>
       {clearable && (
         <Button
           size="icon"
           variant="outline"
-          className="h-12 w-12 shrink-0 rounded-l-none rounded-r-md text-lg md:text-base"
+          className="h-12 w-12 shrink-0 rounded-s-none rounded-e-md text-lg md:text-base"
           onClick={(event) => {
             event.stopPropagation();
             handleClear(event);
@@ -296,7 +296,7 @@ function ComboboxItem({
     >
       <div className="flex text-xl md:text-lg items-center min-w-0 w-0 flex-1">
         <Check
-          className={cn("mr-2 h-4 w-4 shrink-0", selected ? "opacity-100" : "opacity-0")}
+          className={cn("me-2 h-4 w-4 shrink-0", selected ? "opacity-100" : "opacity-0")}
         />
         <div className="flex-1 text-xl md:text-lg min-w-0 overflow-hidden w-0">{children}</div>
       </div>

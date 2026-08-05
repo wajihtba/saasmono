@@ -234,7 +234,7 @@ export function ClassroomsTable({ onEdit, onDelete, onCreateNew }: ClassroomsTab
       className="flex items-center px-4 py-3 active:bg-muted/50 transition-colors"
       onClick={() => handleViewClassroom(row.original)}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 mr-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 me-3">
         <Building2 className="h-5 w-5 text-primary" />
       </div>
 
@@ -249,23 +249,19 @@ export function ClassroomsTable({ onEdit, onDelete, onCreateNew }: ClassroomsTab
           {row.original.studentCount} طالب • {row.original.teacherCount} معلم
         </div>
       </div>
-
-      <div className="ml-2 text-muted-foreground">
-        <Eye className="h-4 w-4" />
-      </div>
     </div>
   )
 
   const emptyStateAction = onCreateNew ? (
     <Button onClick={onCreateNew} className="mt-4">
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إضافة فصل دراسي جديد
     </Button>
   ) : null
 
   const headerActions = onCreateNew ? (
     <Button onClick={onCreateNew}>
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إضافة فصل
     </Button>
   ) : null

@@ -20,7 +20,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Building2, Users, X } from 'lucide-react'
 import { TimetableFilterState } from './timetable-visualization'
 import { useDebouncedSearch } from '@/lib/utils'
-import { any } from 'zod'
 
 interface TimetableFiltersProps {
   filters: TimetableFilterState
@@ -107,10 +106,8 @@ export function TimetableFilters({
   // Group classrooms by education level if enabled
   const groupedClassrooms = groupClassroomsByLevel
     ? displayedClassrooms.reduce((groups, classroom) => {
-      const level = classroom.educationLevel.displayNameAr
-      if (!level) {
-        return [] as any
-      }
+      // Classrooms without a level still belong in the list, just under a catch-all
+      const level = classroom.educationLevel?.displayNameAr || 'بدون مستوى'
       if (!groups[level]) groups[level] = []
       groups[level].push(classroom)
       return groups
@@ -188,7 +185,7 @@ export function TimetableFilters({
                           <ComboboxItem
                             key={classroom.id}
                             id={classroom.id}
-                            searchValue={`${classroom.name} ${classroom.educationLevel.displayNameAr} ${classroom.academicYear}`}
+                            searchValue={`${classroom.name} ${classroom.educationLevel?.displayNameAr} ${classroom.academicYear}`}
                             selected={filters.classroomId === classroom.id}
                             onSelect={() => handleClassroomChange(classroom.id)}
                           >
@@ -209,14 +206,14 @@ export function TimetableFilters({
                         <ComboboxItem
                           key={classroom.id}
                           id={classroom.id}
-                          searchValue={`${classroom.name} ${classroom.educationLevel.displayNameAr} ${classroom.academicYear}`}
+                          searchValue={`${classroom.name} ${classroom.educationLevel?.displayNameAr} ${classroom.academicYear}`}
                           selected={filters.classroomId === classroom.id}
                           onSelect={() => handleClassroomChange(classroom.id)}
                         >
                           <div className="flex flex-col">
                             <span>{classroom.name}</span>
                             <span className="text-xs text-muted-foreground">
-                              {classroom.educationLevel.displayNameAr} - {classroom.academicYear}
+                              {classroom.educationLevel?.displayNameAr} - {classroom.academicYear}
                             </span>
                           </div>
                         </ComboboxItem>
@@ -328,16 +325,16 @@ export function TimetableFilters({
 
         {/* Clear Filters Button */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-transparent">
+          <label className="hidden text-sm font-medium text-transparent md:flex">
             الإجراءات
           </label>
           <Button
             variant="outline"
             onClick={clearAllFilters}
             disabled={!hasActiveFilters}
-            className="w-full"
+            className="h-12 w-full"
           >
-            <X className="h-4 w-4 ml-1" />
+            <X className="h-4 w-4 me-1" />
             مسح جميع الفلاتر
           </Button>
         </div>
@@ -356,7 +353,7 @@ export function TimetableFilters({
                 </span>
                 <button
                   onClick={() => handleClassroomChange('clear')}
-                  className="hover:bg-primary/20 ml-1 rounded-sm p-0.5"
+                  className="hover:bg-primary/20 ms-1 rounded-sm p-0.5"
                 >
                   <X className="h-2 w-2" />
                 </button>
@@ -370,7 +367,7 @@ export function TimetableFilters({
                 </span>
                 <button
                   onClick={() => handleClassroomGroupChange('clear')}
-                  className="hover:bg-primary/20 ml-1 rounded-sm p-0.5"
+                  className="hover:bg-primary/20 ms-1 rounded-sm p-0.5"
                 >
                   <X className="h-2 w-2" />
                 </button>

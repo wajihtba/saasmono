@@ -160,7 +160,9 @@ export function MobileTable<TData>({
       className={cn("flex flex-col h-full bg-background relative", className)}
     >
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border/50">
+      {/* -mx-4 cancels the card's mobile padding so rows run edge to edge;
+          each row keeps its own px-4, lining up with the card title. */}
+      <div className="sticky top-0 z-10 -mx-4 bg-background border-b border-border/50">
         {/* Title Section (No Actions on Mobile) */}
         {tableTitle && (
           <div className="flex items-center px-4 py-3 border-b border-border/30">
@@ -171,11 +173,12 @@ export function MobileTable<TData>({
         )}
 
         {showSearch && (
-          <div className="px-4 sm:pb-3 py-3 bg-white backdrop-blur-sm">
+          <div className="px-4 sm:pb-3 py-3 bg-background backdrop-blur-sm">
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
+                  className="ps-9"
                   placeholder={searchPlaceholder}
                   value={searchValue}
                   onChange={(e) => onSearchChange?.(e.target.value)}
@@ -189,7 +192,7 @@ export function MobileTable<TData>({
                 >
                   <Filter className="h-4 w-4" />
                   {hasActiveFilters && (
-                    <span className="absolute top-[-5px] left-[-5px] pr-0.2  bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center">
+                    <span className="absolute top-[-5px] start-[-5px] bg-primary text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                       {
                         Object.values(activeFilters).filter((v) => v !== "")
                           .length
@@ -206,7 +209,7 @@ export function MobileTable<TData>({
       {/* Virtualized List */}
       <div
         ref={tableContainerRef}
-        className="flex-1 overflow-auto -webkit-overflow-scrolling-touch"
+        className="flex-1 -mx-4 overflow-auto -webkit-overflow-scrolling-touch"
         onScroll={enableVirtualScroll ? handleScroll : undefined}
         style={{
           height: "100%",

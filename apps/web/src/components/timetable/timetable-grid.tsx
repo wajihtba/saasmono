@@ -146,8 +146,34 @@ export function TimetableGrid({ timetableData, isLoading, error, filters }: Time
   }
 
   return (
-    <div className="overflow-x-auto" dir="rtl">
-      <div className="min-w-[800px]">
+    <>
+      {/* Mobile: one stacked block per day, only days that have sessions */}
+      <div className="space-y-6 md:hidden">
+        {WEEKDAYS.map(day => {
+          const daySessions = TIME_SLOTS.flatMap(slot => gridData[day.key]?.[slot.start] || [])
+          if (!daySessions.length) return null
+
+          return (
+            <div key={day.key} className="space-y-2">
+              <div className="bg-muted/60 sticky top-0 z-10 rounded-md px-3 py-2 text-sm font-semibold">
+                {day.label}
+              </div>
+              {daySessions.map(session => (
+                <SessionCard key={session.id} session={session} showTime />
+              ))}
+            </div>
+          )
+        })}
+        {WEEKDAYS.every(day => !TIME_SLOTS.some(slot => gridData[day.key]?.[slot.start]?.length)) && (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            لا توجد حصص مجدولة لهذا الأسبوع
+          </p>
+        )}
+      </div>
+
+      {/* Desktop: full weekly grid */}
+      <div className="hidden overflow-x-auto md:block">
+        <div className="min-w-[800px]">
         {/* Header Row */}
         <div className="grid grid-cols-8 gap-2 mb-4">
           <div className="text-center font-medium text-muted-foreground">
@@ -189,13 +215,14 @@ export function TimetableGrid({ timetableData, isLoading, error, filters }: Time
               })}
             </div>
           ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
-function SessionCard({ session }: { session: TimetableSession }) {
+function SessionCard({ session, showTime = false }: { session: TimetableSession; showTime?: boolean }) {
   const startTime = new Date(session.startDateTime)
   const endTime = new Date(session.endDateTime)
 
@@ -223,11 +250,16 @@ function SessionCard({ session }: { session: TimetableSession }) {
   }
 
   return (
-    <Card className={`p-2 text-xs border-2 ${getStatusColor(session.status)}`}>
+    <Card className={`p-2 text-sm border-2 md:text-xs ${getStatusColor(session.status)}`}>
       <div className="space-y-1">
         {/* Subject and Time */}
-        <div className="font-medium">
-          {session.educationSubject.name}
+        <div className="flex items-center justify-between gap-2">
+          <span className="font-medium">{session.educationSubject.name}</span>
+          {showTime && (
+            <span className="shrink-0 tabular-nums" dir="ltr">
+              {formatTime(startTime)} - {formatTime(endTime)}
+            </span>
+          )}
         </div>
 
         {/* Teacher */}

@@ -118,7 +118,7 @@ export function ParentsTable({ onEdit, onCreateNew }: ParentsTableProps) {
                       </Badge>
                     </div>
                     {child.classroom && (
-                      <div className="flex items-center gap-1 pl-5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1 ps-5 text-xs text-muted-foreground">
                         <Building2 className="h-3 w-3" />
                         {child.classroom.name} • المستوى {child.classroom.educationLevel.level}
                       </div>
@@ -329,7 +329,7 @@ export function ParentsTable({ onEdit, onCreateNew }: ParentsTableProps) {
       className="flex items-center px-4 py-3 active:bg-muted/50 transition-colors"
       onClick={() => handleViewParent(row.original)}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 mr-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 me-3">
         <Heart className="h-5 w-5 text-primary" />
       </div>
 
@@ -346,23 +346,19 @@ export function ParentsTable({ onEdit, onCreateNew }: ParentsTableProps) {
           </div>
         )}
       </div>
-
-      <div className="ml-2 text-muted-foreground">
-        <Eye className="h-4 w-4" />
-      </div>
     </div>
   )
 
   const emptyStateAction = onCreateNew ? (
     <Button onClick={onCreateNew} className="mt-4">
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إضافة ولي أمر جديد
     </Button>
   ) : null
 
   const headerActions = onCreateNew ? (
     <Button onClick={onCreateNew}>
-      <Plus className="ml-1 h-4 w-4" />
+      <Plus className="me-1 h-4 w-4" />
       إضافة ولي أمر
     </Button>
   ) : null

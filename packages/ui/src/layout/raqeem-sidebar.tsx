@@ -189,7 +189,7 @@ function SidebarItemWithTooltip({
         <TooltipTrigger asChild>
           <SidebarItem {...props}>{children}</SidebarItem>
         </TooltipTrigger>
-        <TooltipContent side='right' sideOffset={8}>
+        <TooltipContent side='left' sideOffset={8}>
           {tooltipText}
         </TooltipContent>
       </Tooltip>

@@ -14,10 +14,10 @@ export default function SessionNotesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">كراس القسم</h1>
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">كراس القسم</h1>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-4 md:p-6">
         <SessionNotesTable onCreateNew={handleCreateNew} />
       </Card>
     </div>
