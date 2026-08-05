@@ -49,7 +49,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     })
   }
 
-  console.log(data)
   return (
     <DashboardLayout
       sidebarData={{

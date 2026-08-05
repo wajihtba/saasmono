@@ -3,21 +3,23 @@
 import { useTheme } from "next-themes";
 import { Toaster as Sonner } from "sonner";
 import type { ToasterProps } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type ToasterComponentProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterComponentProps) => {
   const { theme = "system" } = useTheme();
-  console.log("Toaster component mounted with theme:", theme);
 
-  useEffect(() => {
-    console.log("Toaster component mounted with theme:", theme);
-  }, [theme]);
+  // next-themes only knows the real theme after it has read localStorage on the
+  // client, so rendering `theme` during SSR produces markup that never matches
+  // the client and fails hydration. Render the neutral "system" theme until
+  // mounted, then switch to the resolved one.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <Sonner
-      theme={theme as ToasterComponentProps["theme"]}
+      theme={(mounted ? theme : "system") as ToasterComponentProps["theme"]}
       className="toaster group"
       toastOptions={{
         classNames: {

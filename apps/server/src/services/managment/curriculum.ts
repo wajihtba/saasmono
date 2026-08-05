@@ -34,6 +34,10 @@ export class CurriculumManagementService {
       )
 
     const subjectsMap = new Map()
+    // A subject can be linked to the same level by more than one row in
+    // education_level_subject, and the join then repeats that level. Track the
+    // level ids already collected per subject so each one is emitted once.
+    const seenLevelsBySubject = new Map<string, Set<string>>()
 
     results.forEach((row) => {
       const subjectId = row.subjectId
@@ -47,9 +51,13 @@ export class CurriculumManagementService {
           institutionLevelId: row.subjectInstitutionLevelId,
           educationLevels: [],
         })
+        seenLevelsBySubject.set(subjectId, new Set())
       }
 
-      if (row.levelId) {
+      const seenLevels = seenLevelsBySubject.get(subjectId)!
+
+      if (row.levelId && !seenLevels.has(row.levelId)) {
+        seenLevels.add(row.levelId)
         subjectsMap.get(subjectId).educationLevels.push({
           id: row.levelId,
           level: row.levelLevel!,
@@ -99,15 +107,24 @@ export class CurriculumManagementService {
       displayNameAr: result[0].subjectDisplayNameAr,
       displayDescriptionAr: result[0].subjectDisplayDescriptionAr,
       institutionLevelId: result[0].subjectInstitutionLevelId,
-      educationLevels: result
-        .filter((row) => row.levelId !== null)
-        .map((row) => ({
-          id: row.levelId!,
-          level: row.levelLevel!,
-          section: row.levelSection,
-          displayNameAr: row.levelDisplayNameAr,
-          isOptional: row.isOptional ?? false,
-        })),
+      // Same de-duplication as getEducationSubjectsList: duplicate link rows
+      // would otherwise repeat a level here too.
+      educationLevels: Array.from(
+        new Map(
+          result
+            .filter((row) => row.levelId !== null)
+            .map((row) => [
+              row.levelId!,
+              {
+                id: row.levelId!,
+                level: row.levelLevel!,
+                section: row.levelSection,
+                displayNameAr: row.levelDisplayNameAr,
+                isOptional: row.isOptional ?? false,
+              },
+            ])
+        ).values()
+      ),
     }
 
     return subject
