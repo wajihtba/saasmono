@@ -11,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../components/ui/sidebar";
+import type { Route } from 'next';
 import { useRouter } from "next/navigation";
 
 export function NavMain({
@@ -24,7 +25,6 @@ export function NavMain({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  console.log("pathname", pathname);
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -53,7 +53,7 @@ export function NavMain({
               <SidebarMenuButton
                 isActive={pathname === item.url}
                 tooltip={item.title}
-                onClick={() => router.push(item.url)}
+                onClick={() => router.push(item.url as Route)}
               >
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>

@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 @import 'sonner/dist/styles.css';
 
-@source "../node_modules/@repo/ui";
+@source "../node_modules/@repo/ui/src";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

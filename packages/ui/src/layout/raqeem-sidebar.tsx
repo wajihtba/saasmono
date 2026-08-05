@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutGroup, motion } from 'framer-motion';
@@ -282,7 +283,7 @@ export function RaqeemDashboardSidebar({
           {navigationItems.map(item => (
             <SidebarItemWithTooltip
               key={item.title}
-              href={`/dashboard${item.href}`}
+              href={`/dashboard${item.href}` as Route}
               current={isActive(item.href)}
               className={isCollapsed ? 'justify-center' : ''}
               isCollapsed={isCollapsed}
@@ -332,7 +333,7 @@ export function RaqeemDashboardSidebar({
             </SidebarItemWithTooltip>
           )}
           <SidebarItemWithTooltip
-            href={`/dashboard/documents/upload`}
+            href={'/dashboard/documents/upload' as Route}
             className={isCollapsed ? 'justify-center' : ''}
             isCollapsed={isCollapsed}
             tooltipText='رفع وثيقة'
@@ -397,7 +398,7 @@ export function RaqeemDashboardSidebar({
                 <DropdownMenuLabel>الحساب</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href={`/dashboard/settings`}>
+                  <Link href={'/dashboard/settings' as Route}>
                     <Settings className='ml-2 h-4 w-4' />
                     إعدادات الحساب
                   </Link>

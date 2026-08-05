@@ -1,5 +1,8 @@
-'use client'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@repo/ui'
+// Imported by file rather than from the package barrel: this page is a Server
+// Component, and the barrel would drag client-only components into the RSC graph.
+import { Badge } from '@repo/ui/components/ui/badge'
+import { Button } from '@repo/ui/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ui/card'
 import {
   ArrowLeft,
   BarChart3,
@@ -15,10 +18,9 @@ import {
   Users,
 } from 'lucide-react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function Home() {
-  const router = useRouter()
 
   return (
     <div
@@ -47,12 +49,8 @@ export default function Home() {
               </a>
             </div>
             <div className="flex items-center gap-3">
-              <Button
-                onClick={() => {
-                  router.push('/login')
-                }}
-              >
-                تسجيل الدخول
+              <Button asChild>
+                <Link href="/login">تسجيل الدخول</Link>
               </Button>
               {/*<Button>ابدأ مجاناً</Button>*/}
             </div>

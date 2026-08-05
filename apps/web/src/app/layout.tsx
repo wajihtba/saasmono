@@ -1,17 +1,25 @@
-import Header from '@/components/header'
 import Providers from '@/components/providers'
 import type { Metadata } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono, Noto_Sans_Arabic } from 'next/font/google'
 import '../index.css'
 
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin', 'latin-ext'],
 })
- 
+
 const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
   subsets: ['latin'],
+})
+
+// Self-hosted so the browser doesn't block first paint on fonts.googleapis.com.
+// Only the weights the app actually uses — the old <link> pulled all 9.
+const notoSansArabic = Noto_Sans_Arabic({
+  variable: '--font-noto-arabic',
+  subsets: ['arabic'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -25,14 +33,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
+    // Add `font-sans` to the body className to actually apply Inter + Noto Sans
+    // Arabic. Left off deliberately: the app has always rendered in the system
+    // font, and turning it on reflows the landing hero.
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100;200;300;400;500;600;700;800;900&family=Noto+Serif+Arabic:wght@100;200;300;400;500;600;700;800;900&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`} suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable} ${notoSansArabic.variable} antialiased`}
+        suppressHydrationWarning
+      >
         <Providers>
           {children}
         </Providers>

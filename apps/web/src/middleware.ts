@@ -8,10 +8,6 @@ export function middleware(request: NextRequest) {
     const sessionCookie = getSessionCookie(request, {
       //cookiePrefix: process.env.NODE_ENV === 'production' ? '__Secure' : '',
     })
-    console.log('---------------------')
-    console.log('cookie', sessionCookie)
-    console.log(request.headers)
-    console.log('---------------------')
     if (!sessionCookie) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('redirect', pathname)
