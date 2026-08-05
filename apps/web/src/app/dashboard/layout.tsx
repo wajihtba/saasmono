@@ -57,7 +57,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const handleMobileLogout = async () => {
+  const handleLogout = async () => {
     clearStoredData()
     await authClient.signOut({
       fetchOptions: {
@@ -76,6 +76,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           name: data?.user?.name || 'User',
           email: data?.user?.email || '',
           avatar: data?.user?.image || '/logo.svg',
+          onLogout: handleLogout,
         },
       }}
       brandLogo={<img src="/logo-and-text.svg" alt="منارة" className="h-[34px] !w-24" />}
@@ -90,7 +91,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         drawerItems={drawerItems}
         basePath="/dashboard"
         onQuickAction={handleMobileQuickAction}
-        onLogout={handleMobileLogout}
+        onLogout={handleLogout}
         notifications={{
           count: dashboardNotifications.filter((n) => !n.isRead).length,
           variant: 'destructive',
