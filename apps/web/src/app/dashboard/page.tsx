@@ -1,18 +1,23 @@
 'use client'
 
+import { dashboardQuickActions } from '@/config/dashboard'
+import { useOrgRole } from '@/hooks/use-org-role'
 import { authClient } from '@/lib/auth-client'
-import { orpc } from '@/utils/orpc'
+import { filterByHref } from '@/lib/nav-access'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui'
-import { useQuery } from '@tanstack/react-query'
 import { AlertCircle, BookOpen, Calendar, CheckCircle, Clock, GraduationCap, TrendingUp, Users } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 export default function Dashboard() {
   const router = useRouter()
   const { data: session, isPending } = authClient.useSession()
+  const { role } = useOrgRole()
 
-  const privateData = useQuery(orpc.privateData.queryOptions())
+  // Shortcuts a role cannot open are dropped; if none survive the card never
+  // renders. `role` is null while it loads, so nothing flashes in first.
+  const quickActions = useMemo(() => filterByHref(dashboardQuickActions, role), [role])
 
   useEffect(() => {
     if (!session && !isPending) {
@@ -139,9 +144,6 @@ export default function Dashboard() {
             مرحباً بك، {session?.user.name || 'المستخدم'} 👋
           </h1>
           <p className="text-gray-600 dark:text-gray-400">إليك نظرة سريعة على نشاط مدرستك اليوم</p>
-          {privateData.data && typeof privateData.data === 'object' && privateData.data !== null && 'message' in privateData.data ? (
-            <p className="mt-2 text-sm text-green-600">✅ {(privateData.data as { message: string }).message}</p>
-          ) : null}
         </div>
 
         {/* Stats Cards */}
@@ -235,32 +237,30 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-right">إجراءات سريعة</CardTitle>
-            <CardDescription className="text-right">الوظائف الأكثر استخداماً</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              {[
-                { title: 'إضافة طالب جديد', icon: GraduationCap, color: 'blue' },
-                { title: 'تسجيل حضور', icon: CheckCircle, color: 'green' },
-                { title: 'إنشاء تقرير', icon: TrendingUp, color: 'purple' },
-                { title: 'إرسال إشعار', icon: AlertCircle, color: 'orange' },
-              ].map((action, index) => (
-                <button
-                  key={index}
-                  className="group rounded-lg border-2 border-dashed border-gray-200 p-4 text-center transition-colors hover:border-blue-300 hover:bg-blue-50 dark:border-gray-700 dark:hover:bg-blue-950"
-                >
-                  <action.icon className="mx-auto mb-2 h-8 w-8 text-gray-400 group-hover:text-blue-600" />
-                  <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white">
-                    {action.title}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {quickActions.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-right">إجراءات سريعة</CardTitle>
+              <CardDescription className="text-right">الوظائف الأكثر استخداماً</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                {quickActions.map((action) => (
+                  <Link
+                    key={action.id}
+                    href={action.href}
+                    className="group rounded-lg border-2 border-dashed border-gray-200 p-4 text-center transition-colors hover:border-blue-300 hover:bg-blue-50 dark:border-gray-700 dark:hover:bg-blue-950"
+                  >
+                    <action.icon className="mx-auto mb-2 h-8 w-8 text-gray-400 group-hover:text-blue-600" />
+                    <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white">
+                      {action.title}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </>
   )

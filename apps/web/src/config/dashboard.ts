@@ -1,3 +1,5 @@
+import type { Route } from 'next'
+import type { LucideIcon } from 'lucide-react'
 import {
   BarChart3,
   BookOpen,
@@ -193,18 +195,41 @@ export const dashboardUser = {
   initials: 'أم',
 }
 
-export const dashboardQuickActions = [
+interface QuickActionLink {
+  id: string
+  title: string
+  href: Route
+  icon: LucideIcon
+}
+
+/**
+ * Shortcuts on the dashboard landing page. Every entry points at a real route
+ * so the role filter is the same one the sidebar and the page guard use.
+ */
+export const dashboardQuickActions: QuickActionLink[] = [
   {
-    id: 'add-student',
-    label: 'إضافة طالب',
-    icon: Users,
-    onClick: () => (window.location.href = '/dashboard/students/new'),
+    id: 'students',
+    title: 'إدارة الطلاب',
+    href: '/dashboard/institution-settings/students',
+    icon: GraduationCap,
   },
   {
-    id: 'new-report',
-    label: 'تقرير جديد',
-    icon: FileText,
-    onClick: () => (window.location.href = '/dashboard/reports/new'),
+    id: 'take-attendance',
+    title: 'تسجيل حضور',
+    href: '/dashboard/attendances/new',
+    icon: CheckSquare,
+  },
+  {
+    id: 'new-note',
+    title: 'ملاحظة جديدة',
+    href: '/dashboard/session-notes/new',
+    icon: BookOpen,
+  },
+  {
+    id: 'late-pass',
+    title: 'إصدار تصريح تأخير',
+    href: '/dashboard/late-pass-tickets/generate',
+    icon: Ticket,
   },
 ]
 
@@ -282,29 +307,33 @@ export const dashboardMobileNavItems = [
   },
 ]
 
-export const dashboardMobileQuickActions = [
+/** Drawer shortcuts. `href` drives both the role filter and the navigation. */
+export const dashboardMobileQuickActions: Array<{
+  title: string
+  icon: LucideIcon
+  action: string
+  href: Route
+  color: string
+}> = [
   {
     title: 'إضافة طالب',
     icon: Plus,
     action: 'add-student',
+    href: '/dashboard/institution-settings/students',
     color: 'bg-blue-600 text-white',
   },
   {
-    title: 'تقرير جديد',
-    icon: Plus,
-    action: 'new-report',
+    title: 'تسجيل حضور',
+    icon: CheckSquare,
+    action: 'take-attendance',
+    href: '/dashboard/attendances/new',
     color: 'bg-green-600 text-white',
   },
   {
-    title: 'البحث السريع',
-    icon: Search,
-    action: 'search',
-    color: 'bg-gray-600 text-white',
-  },
-  {
-    title: 'الإعدادات',
-    icon: Settings,
-    action: 'settings',
+    title: 'تصريح تأخير',
+    icon: Ticket,
+    action: 'late-pass',
+    href: '/dashboard/late-pass-tickets/generate',
     color: 'bg-purple-600 text-white',
   },
 ]

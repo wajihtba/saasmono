@@ -29,6 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const sidebarData = useMemo(() => filterSidebarData(dashboardSidebarData, role), [role])
   const mobileNavItems = useMemo(() => filterByHref(dashboardMobileNavItems, role), [role])
   const drawerItems = useMemo(() => filterDrawerItems(dashboardMobileDrawerItems, role), [role])
+  const quickActions = useMemo(() => filterByHref(dashboardMobileQuickActions, role), [role])
 
   useEffect(() => {
     if (isRolePending || !pathname) return
@@ -38,23 +39,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [role, isRolePending, pathname, router])
 
   const handleMobileQuickAction = (action: string) => {
-    switch (action) {
-      case 'add-student':
-        router.push('/dashboard/students/new' as any)
-        break
-      case 'new-report':
-        router.push('/dashboard/reports/new' as any)
-        break
-      case 'search':
-        // TODO: Implement search functionality
-        console.log('Search action')
-        break
-      case 'settings':
-        router.push('/dashboard/settings' as any)
-        break
-      default:
-        break
-    }
+    const target = quickActions.find((item) => item.action === action)
+    if (target) router.push(target.href)
   }
 
   const handleLogout = async () => {
@@ -87,7 +73,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Mobile Navigation */}
       <MobileNav
         mainNavItems={mobileNavItems}
-        quickActions={dashboardMobileQuickActions}
+        quickActions={quickActions}
         drawerItems={drawerItems}
         basePath="/dashboard"
         onQuickAction={handleMobileQuickAction}
