@@ -1,8 +1,8 @@
 'use client'
 
-import { Badge, Card } from '@repo/ui'
+import { Badge, Card, cn } from '@repo/ui'
 import { AlertCircle, Clock, MapPin, User } from 'lucide-react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { TimetableFilterState } from './timetable-visualization'
 
 interface TimetableSession {
@@ -59,13 +59,54 @@ const TIME_SLOTS = Array.from({ length: 12 }, (_, i) => {
   const hour = 7 + i
   return {
     key: hour,
-    label: `${hour}:00`,
+    label: `${String(hour).padStart(2, '0')}:00`,
     start: hour,
     end: hour + 1,
   }
 })
 
+const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+
+const formatTime = (date: Date) => {
+  const hours = String(date.getUTCHours()).padStart(2, '0')
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
 export function TimetableGrid({ timetableData, isLoading, error, filters }: TimetableGridProps) {
+  // Every session of the week keyed by day, sorted by start time. Unlike the
+  // grid this keeps sessions that fall outside the 07:00-19:00 window.
+  const sessionsByDay = useMemo(() => {
+    const byDay: Record<string, TimetableSession[]> = {}
+    WEEKDAYS.forEach(day => (byDay[day.key] = []))
+
+    timetableData?.forEach(session => {
+      const dayKey = DAY_KEYS[new Date(session.startDateTime).getUTCDay()]
+      if (dayKey && byDay[dayKey]) byDay[dayKey].push(session)
+    })
+
+    Object.values(byDay).forEach(sessions =>
+      sessions.sort(
+        (a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
+      )
+    )
+
+    return byDay
+  }, [timetableData])
+
+  const firstDayWithSessions = WEEKDAYS.find(day => sessionsByDay[day.key]?.length)?.key
+  const [selectedDay, setSelectedDay] = useState<string | null>(null)
+
+  // Today is resolved after mount so the server and client agree on first
+  // render, and only when it actually has sessions to show.
+  useEffect(() => {
+    const today = DAY_KEYS[new Date().getDay()]
+    if (today && sessionsByDay[today]?.length) setSelectedDay(today)
+  }, [sessionsByDay])
+
+  const activeDay = selectedDay ?? firstDayWithSessions ?? WEEKDAYS[0].key
+  const activeSessions = sessionsByDay[activeDay] ?? []
+
   // Process timetable data into grid format
   const gridData = useMemo(() => {
     if (!timetableData?.length) return {}
@@ -147,26 +188,66 @@ export function TimetableGrid({ timetableData, isLoading, error, filters }: Time
 
   return (
     <>
-      {/* Mobile: one stacked block per day, only days that have sessions */}
-      <div className="space-y-6 md:hidden">
-        {WEEKDAYS.map(day => {
-          const daySessions = TIME_SLOTS.flatMap(slot => gridData[day.key]?.[slot.start] || [])
-          if (!daySessions.length) return null
+      {/* Mobile: pick a day, read it as a timeline */}
+      <div className="md:hidden">
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {WEEKDAYS.map(day => {
+            const count = sessionsByDay[day.key]?.length ?? 0
+            const isActive = day.key === activeDay
 
-          return (
-            <div key={day.key} className="space-y-2">
-              <div className="bg-muted/60 sticky top-0 z-10 rounded-md px-3 py-2 text-sm font-semibold">
+            return (
+              <button
+                key={day.key}
+                type="button"
+                onClick={() => setSelectedDay(day.key)}
+                className={cn(
+                  'flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors',
+                  isActive
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-background text-muted-foreground'
+                )}
+              >
                 {day.label}
-              </div>
-              {daySessions.map(session => (
-                <SessionCard key={session.id} session={session} showTime />
-              ))}
-            </div>
-          )
-        })}
-        {WEEKDAYS.every(day => !TIME_SLOTS.some(slot => gridData[day.key]?.[slot.start]?.length)) && (
-          <p className="text-muted-foreground py-8 text-center text-sm">
-            لا توجد حصص مجدولة لهذا الأسبوع
+                <span
+                  className={cn(
+                    'rounded-full px-1.5 text-xs tabular-nums',
+                    isActive ? 'bg-primary-foreground/20' : 'bg-muted'
+                  )}
+                >
+                  {count}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
+        {activeSessions.length > 0 ? (
+          <ol className="relative space-y-3 py-2">
+            {activeSessions.map((session, index) => (
+              <li key={session.id} className="flex gap-3">
+                <div className="flex w-14 shrink-0 flex-col items-end pt-2">
+                  <span className="text-sm font-medium tabular-nums" dir="ltr">
+                    {formatTime(new Date(session.startDateTime))}
+                  </span>
+                  <span className="text-muted-foreground text-xs tabular-nums" dir="ltr">
+                    {formatTime(new Date(session.endDateTime))}
+                  </span>
+                </div>
+                <div className="relative flex flex-col items-center pt-3">
+                  <span className="bg-primary h-2.5 w-2.5 shrink-0 rounded-full" />
+                  {index < activeSessions.length - 1 && (
+                    <span className="bg-border mt-1 w-px flex-1" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <SessionCard session={session} />
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="text-muted-foreground py-10 text-center text-sm">
+            لا توجد حصص في هذا اليوم
           </p>
         )}
       </div>
@@ -222,16 +303,7 @@ export function TimetableGrid({ timetableData, isLoading, error, filters }: Time
   )
 }
 
-function SessionCard({ session, showTime = false }: { session: TimetableSession; showTime?: boolean }) {
-  const startTime = new Date(session.startDateTime)
-  const endTime = new Date(session.endDateTime)
-
-  const formatTime = (date: Date) => {
-    const hours = String(date.getUTCHours()).padStart(2, '0')
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0')
-    return `${hours}:${minutes}`
-  }
-
+function SessionCard({ session }: { session: TimetableSession }) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'SCHEDULED':
@@ -252,14 +324,9 @@ function SessionCard({ session, showTime = false }: { session: TimetableSession;
   return (
     <Card className={`p-2 text-sm border-2 md:text-xs ${getStatusColor(session.status)}`}>
       <div className="space-y-1">
-        {/* Subject and Time */}
-        <div className="flex items-center justify-between gap-2">
-          <span className="font-medium">{session.educationSubject.name}</span>
-          {showTime && (
-            <span className="shrink-0 tabular-nums" dir="ltr">
-              {formatTime(startTime)} - {formatTime(endTime)}
-            </span>
-          )}
+        {/* Subject */}
+        <div className="font-medium">
+          {session.educationSubject.displayNameAr || session.educationSubject.name}
         </div>
 
         {/* Teacher */}

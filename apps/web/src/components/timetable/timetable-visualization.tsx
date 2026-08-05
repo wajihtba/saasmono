@@ -78,8 +78,8 @@ export function TimetableVisualization() {
       {/* Filter Section */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
               <CardTitle className="flex items-center gap-2">
                 <Filter className="h-5 w-5" />
                 تصفية الجدول
@@ -89,7 +89,7 @@ export function TimetableVisualization() {
             <Button
               variant="outline"
               size="sm"
-              className="w-full sm:w-auto"
+              className="shrink-0"
               onClick={() => setShowFilters(!showFilters)}
             >
               {showFilters ? 'إخفاء الفلاتر' : 'إظهار الفلاتر'}

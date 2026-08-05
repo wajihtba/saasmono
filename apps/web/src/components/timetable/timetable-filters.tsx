@@ -323,26 +323,28 @@ export function TimetableFilters({
           </Combobox>
         </div>
 
-        {/* Clear Filters Button */}
-        <div className="space-y-2">
-          <label className="hidden text-sm font-medium text-transparent md:flex">
-            الإجراءات
-          </label>
-          <Button
-            variant="outline"
-            onClick={clearAllFilters}
-            disabled={!hasActiveFilters}
-            className="h-12 w-full"
-          >
-            <X className="h-4 w-4 me-1" />
-            مسح جميع الفلاتر
-          </Button>
-        </div>
+        {/* Clear Filters Button — only worth showing once something is filtered */}
+        {hasActiveFilters && (
+          <div className="space-y-2">
+            <label className="hidden text-sm font-medium text-transparent md:flex">
+              الإجراءات
+            </label>
+            <Button
+              variant="outline"
+              onClick={clearAllFilters}
+              className="h-11 w-full md:h-12"
+            >
+              <X className="h-4 w-4 me-1" />
+              مسح جميع الفلاتر
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Active Filters Display */}
+      {/* Active Filters Display — the combobox already shows the selection on
+          mobile, so the chips are only worth the space from md up */}
       {hasActiveFilters && (
-        <div className="border-t pt-4">
+        <div className="hidden border-t pt-4 md:block">
           <div className="text-sm text-muted-foreground mb-2">الفلاتر النشطة:</div>
           <div className="flex flex-wrap gap-2">
             {filters.classroomId && (

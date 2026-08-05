@@ -165,6 +165,10 @@ function ComboboxButton({
     onClear?.();
   };
 
+  // An empty combobox has nothing to clear, so the button only appears once a
+  // value is picked instead of sitting there disabled.
+  const showClear = clearable && Boolean(selectedLabel);
+
   return (
     <div className="flex w-full gap-0 min-w-0">
       <Button
@@ -172,10 +176,9 @@ function ComboboxButton({
         role="combobox"
         data-slot="combobox-button"
         className={cn(
-          "!flex flex-1 min-w-0 w-0 h-12 justify-between text-lg md:text-base",
+          "!flex flex-1 min-w-0 w-0 h-11 justify-between text-base md:h-12",
           !selectedLabel && "text-muted-foreground",
-          clearable && "rounded-s-md rounded-e-none border-e-0",
-          !clearable && "rounded-md",
+          showClear ? "rounded-s-md rounded-e-none border-e-0" : "rounded-md",
           className,
         )}
         {...props}
@@ -185,16 +188,15 @@ function ComboboxButton({
         </span>
         <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ms-2" />
       </Button>
-      {clearable && (
+      {showClear && (
         <Button
           size="icon"
           variant="outline"
-          className="h-12 w-12 shrink-0 rounded-s-none rounded-e-md text-lg md:text-base"
+          className="h-11 w-11 shrink-0 rounded-s-none rounded-e-md text-base md:h-12 md:w-12"
           onClick={(event) => {
             event.stopPropagation();
             handleClear(event);
           }}
-          disabled={!selectedLabel}
         >
           <X className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer" />
         </Button>
