@@ -1,5 +1,7 @@
 'use client'
 
+import { Can } from '@/components/commun/can'
+import { Permission } from '@repo/rbac'
 import { Badge, Button } from '@repo/ui'
 import { BookOpen, Calendar, Clock, Lock, Edit, Trash2, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -80,15 +82,19 @@ export function SessionNoteHeader({
 
             {/* Action buttons */}
             <div className="flex items-center gap-2 shrink-0">
-              <Button variant="outline" size="sm" onClick={handleEdit}>
-                <Edit className="h-4 w-4 ml-1" />
-                تعديل
-              </Button>
-              {onDelete && (
-                <Button variant="destructive" size="sm" onClick={onDelete}>
-                  <Trash2 className="h-4 w-4 ml-1" />
-                  حذف
+              <Can permission={Permission.NOTE_WRITE} ownerId={createdBy.id} reserve="h-8 w-24">
+                <Button variant="outline" size="sm" onClick={handleEdit}>
+                  <Edit className="h-4 w-4 ml-1" />
+                  تعديل
                 </Button>
+              </Can>
+              {onDelete && (
+                <Can permission={Permission.NOTE_DELETE} ownerId={createdBy.id} reserve="h-8 w-20">
+                  <Button variant="destructive" size="sm" onClick={onDelete}>
+                    <Trash2 className="h-4 w-4 ml-1" />
+                    حذف
+                  </Button>
+                </Can>
               )}
             </div>
           </div>

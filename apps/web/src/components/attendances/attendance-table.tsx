@@ -1,6 +1,8 @@
 'use client'
 
+import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
+import { Permission } from '@repo/rbac'
 import { Badge, Button, GenericTable } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -52,6 +54,11 @@ const columnHelper = createColumnHelper<AttendanceSessionListItem>()
 
 export function AttendanceTable({ onCreateNew }: AttendanceTableProps) {
   const router = useRouter()
+  const { can } = usePermissions()
+
+  // The edit route is opened from inside the row, so the gate lives here rather
+  // than in a handler the page could withhold.
+  const canWrite = can(Permission.ATTENDANCE_WRITE)
   const { data: attendances = [], isLoading, error } = useQuery(
     orpc.management.attendances.getAttendancesList.queryOptions({})
   )
@@ -194,19 +201,21 @@ export function AttendanceTable({ onCreateNew }: AttendanceTableProps) {
             >
               <Eye className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleEditAttendance(row.original.id)}
-              title="تعديل"
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
+            {canWrite && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleEditAttendance(row.original.id)}
+                title="تعديل"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         ),
       }),
     ],
-    [router]
+    [router, canWrite]
   )
 
   const quickFilters = useMemo(

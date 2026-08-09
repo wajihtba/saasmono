@@ -44,6 +44,8 @@ export const SessionNoteListItemSchema = z.object({
   isPrivate: z.boolean(),
   timetableId: z.uuid(),
   createdAt: z.date(),
+  /** Author, so a client can tell the rows its actor may edit from the rest. */
+  createdById: z.string(),
   timetable: z.object({
     id: z.uuid(),
     title: z.string(),

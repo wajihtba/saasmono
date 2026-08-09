@@ -344,7 +344,7 @@ export const dashboardMobileDrawerItems = [
     items: [
       {
         title: 'الطلاب',
-        href: 'students',
+        href: 'institution-settings/students',
         icon: Users,
         description: 'إدارة ملفات الطلاب',
       },

@@ -1,6 +1,8 @@
 'use client'
 
+import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
+import { Permission } from '@repo/rbac'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { SessionNoteForm } from '@/components/sessionNotes/form/session-note-form'
@@ -17,6 +19,7 @@ interface PageProps {
 export default function EditSessionNotePage({ params }: PageProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { canForOwn, isPending: isRolePending } = usePermissions()
 
   const { data: sessionNote, isLoading, error } = useQuery(
     orpc.management.sessionNotes.getSessionNoteById.queryOptions({
@@ -58,7 +61,7 @@ export default function EditSessionNotePage({ params }: PageProps) {
     router.push(`/dashboard/session-notes/${params.noteId}`)
   }
 
-  if (isLoading) {
+  if (isLoading || isRolePending) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -74,6 +77,23 @@ export default function EditSessionNotePage({ params }: PageProps) {
           <p className="text-muted-foreground">
             {error?.message || 'لم يتم العثور على كراس القسم'}
           </p>
+        </div>
+      </div>
+    )
+  }
+
+  // The route table lets the whole teaching side open this page, but a note is
+  // only editable by its author unless the actor is org-wide. Same rule as
+  // `assertSessionNoteAuthored` on the server.
+  if (!canForOwn(Permission.NOTE_WRITE, sessionNote.createdBy?.id)) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="space-y-4 text-center">
+          <h3 className="text-lg font-semibold">لا تملك صلاحية تعديل هذا الكراس</h3>
+          <p className="text-muted-foreground">يمكن لصاحب الكراس فقط تعديله</p>
+          <Button variant="outline" onClick={() => router.push(`/dashboard/session-notes/${params.noteId}`)}>
+            العودة إلى الكراس
+          </Button>
         </div>
       </div>
     )

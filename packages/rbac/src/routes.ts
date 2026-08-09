@@ -39,13 +39,18 @@ export const DASHBOARD_ROUTE_ROLES: Record<string, readonly Role[]> = {
 /** Suffixes that make a route an edit surface rather than a read surface. */
 const EDIT_SUFFIXES = ['/edit', '/new']
 
+const ROOT = '/dashboard'
+
 export function rolesForRoute(pathname: string): readonly Role[] {
-  const normalized = pathname.replace(/\/+$/, '') || '/dashboard'
+  const normalized = pathname.replace(/\/+$/, '') || ROOT
 
   let match: readonly Role[] | undefined
   let matchLength = -1
   for (const [route, roles] of Object.entries(DASHBOARD_ROUTE_ROLES)) {
-    if ((normalized === route || normalized.startsWith(`${route}/`)) && route.length > matchLength) {
+    // The dashboard root would otherwise be every unlisted page's parent, which
+    // would hand a new route to all six roles. It matches itself only.
+    const matches = route === ROOT ? normalized === ROOT : normalized === route || normalized.startsWith(`${route}/`)
+    if (matches && route.length > matchLength) {
       match = roles
       matchLength = route.length
     }

@@ -1,6 +1,8 @@
 'use client'
 
+import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
+import { Permission } from '@repo/rbac'
 import { Badge, Button, GenericTable } from '@repo/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
@@ -69,6 +71,12 @@ interface LatePassTicketsTableProps {
 const columnHelper = createColumnHelper<TicketListItem>()
 
 export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProps) {
+  const { can } = usePermissions()
+
+  // Cancelling is the same authority as issuing; the roles that only read their
+  // own tickets get the download and nothing else.
+  const canIssue = can(Permission.LATEPASS_ISSUE)
+
   const { data: tickets = [], isLoading, error, refetch } = useQuery(
     orpc.management.latePassTickets.getTickets.queryOptions({})
   )
@@ -244,7 +252,7 @@ export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProp
                 <Download className="h-4 w-4" />
               </Button>
             )}
-            {row.original.status === 'ISSUED' && (
+            {canIssue && row.original.status === 'ISSUED' && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -259,7 +267,7 @@ export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProp
         ),
       }),
     ],
-    [cancelTicketMutation.isPending, handleDownloadPDF, handleCancelTicket]
+    [cancelTicketMutation.isPending, handleDownloadPDF, handleCancelTicket, canIssue]
   )
 
   const quickFilters = useMemo(
@@ -362,7 +370,7 @@ export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProp
             تحميل التذكرة
           </Button>
         )}
-        {row.original.status === 'ISSUED' && (
+        {canIssue && row.original.status === 'ISSUED' && (
           <Button
             variant="ghost"
             size="sm"

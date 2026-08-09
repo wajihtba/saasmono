@@ -2,10 +2,17 @@
 
 import { StudentsTable } from '@/components/students/students-table'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { usePermissions } from '@/hooks/use-permissions'
+import { Permission } from '@repo/rbac'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui'
 
 export default function Students() {
   const isMobile = useIsMobile()
+  const { can } = usePermissions()
+
+  // The table drops an action whose handler is missing, so a role without the
+  // write permission never sees the button the API would reject.
+  const canWrite = can(Permission.STUDENT_WRITE)
 
   const handleEditStudent = (studentId: string) => {
     console.log('Edit student:', studentId)
@@ -23,7 +30,12 @@ export default function Students() {
   }
 
   if (isMobile) {
-    return <StudentsTable onEdit={handleEditStudent} onCreateNew={handleCreateNewStudent} />
+    return (
+      <StudentsTable
+        onEdit={canWrite ? handleEditStudent : undefined}
+        onCreateNew={canWrite ? handleCreateNewStudent : undefined}
+      />
+    )
   }
 
   return (
@@ -40,7 +52,10 @@ export default function Students() {
           <CardDescription>إدارة قائمة الطلاب ومعلوماتهم الشخصية وأولياء الأمور والانتساب للفصول</CardDescription>
         </CardHeader>
         <CardContent>
-          <StudentsTable onEdit={handleEditStudent} onCreateNew={handleCreateNewStudent} />
+          <StudentsTable
+            onEdit={canWrite ? handleEditStudent : undefined}
+            onCreateNew={canWrite ? handleCreateNewStudent : undefined}
+          />
         </CardContent>
       </Card>
     </div>

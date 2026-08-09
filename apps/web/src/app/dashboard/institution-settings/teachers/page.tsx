@@ -2,10 +2,17 @@
 
 import { TeachersTable } from '@/components/teachers/teachers-table'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { usePermissions } from '@/hooks/use-permissions'
+import { Permission } from '@repo/rbac'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui'
 
 export default function Teachers() {
   const isMobile = useIsMobile()
+  const { can } = usePermissions()
+
+  // The table drops an action whose handler is missing, so a role without the
+  // write permission never sees the button the API would reject.
+  const canWrite = can(Permission.TEACHER_WRITE)
   const handleEditTeacher = (teacherId: string) => {
     console.log('Edit teacher:', teacherId)
     // TODO: Implement edit functionality
@@ -21,7 +28,12 @@ export default function Teachers() {
     // TODO: Implement create functionality
   }
   if (isMobile) {
-    return <TeachersTable onEdit={handleEditTeacher} onCreateNew={handleCreateNewTeacher} />
+    return (
+      <TeachersTable
+        onEdit={canWrite ? handleEditTeacher : undefined}
+        onCreateNew={canWrite ? handleCreateNewTeacher : undefined}
+      />
+    )
   }
 
   return (
@@ -38,7 +50,10 @@ export default function Teachers() {
           <CardDescription>إدارة قائمة المعلمين ومعلوماتهم الشخصية والمهنية</CardDescription>
         </CardHeader>
         <CardContent>
-          <TeachersTable onEdit={handleEditTeacher} onCreateNew={handleCreateNewTeacher} />
+          <TeachersTable
+            onEdit={canWrite ? handleEditTeacher : undefined}
+            onCreateNew={canWrite ? handleCreateNewTeacher : undefined}
+          />
         </CardContent>
       </Card>
     </div>

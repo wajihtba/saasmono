@@ -46,6 +46,7 @@ export class SessionNoteManagementService {
         noteIsPrivate: sessionNote.isPrivate,
         noteTimetableId: sessionNote.timetableId,
         noteCreatedAt: sessionNote.createdAt,
+        noteCreatedById: sessionNote.createdByUserId,
         // Session instance data
         sessionId: timetable.id,
         sessionTitle: timetable.title,
@@ -81,6 +82,7 @@ export class SessionNoteManagementService {
       isPrivate: row.noteIsPrivate,
       timetableId: row.noteTimetableId,
       createdAt: row.noteCreatedAt,
+      createdById: row.noteCreatedById,
       timetable: {
         id: row.sessionId!,
         title: row.sessionTitle!,

@@ -2,10 +2,17 @@
 
 import { ParentsTable } from '@/components/parents/parents-table'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { usePermissions } from '@/hooks/use-permissions'
+import { Permission } from '@repo/rbac'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui'
 
 export default function Parents() {
   const isMobile = useIsMobile()
+  const { can } = usePermissions()
+
+  // The table drops an action whose handler is missing, so a role without the
+  // write permission never sees the button the API would reject.
+  const canWrite = can(Permission.PARENT_WRITE)
 
   const handleEditParent = (parentId: string) => {
     console.log('Edit parent:', parentId)
@@ -18,7 +25,12 @@ export default function Parents() {
   }
 
   if (isMobile) {
-    return <ParentsTable onEdit={handleEditParent} onCreateNew={handleCreateNewParent} />
+    return (
+      <ParentsTable
+        onEdit={canWrite ? handleEditParent : undefined}
+        onCreateNew={canWrite ? handleCreateNewParent : undefined}
+      />
+    )
   }
 
   return (
@@ -35,7 +47,10 @@ export default function Parents() {
           <CardDescription>إدارة قائمة أولياء الأمور ومعلوماتهم الشخصية وعلاقاتهم مع الأطفال</CardDescription>
         </CardHeader>
         <CardContent>
-          <ParentsTable onEdit={handleEditParent} onCreateNew={handleCreateNewParent} />
+          <ParentsTable
+            onEdit={canWrite ? handleEditParent : undefined}
+            onCreateNew={canWrite ? handleCreateNewParent : undefined}
+          />
         </CardContent>
       </Card>
     </div>

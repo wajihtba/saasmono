@@ -141,9 +141,11 @@ export function EducationSubjectTable({ onEdit, onDelete, onCreateNew }: Educati
             <Button variant="ghost" size="sm" onClick={() => handleViewSubject(row.original)} title="عرض">
               <Eye className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => onEdit?.(row.original.id)} title="تعديل">
-              <Edit className="h-4 w-4" />
-            </Button>
+            {onEdit && (
+              <Button variant="ghost" size="sm" onClick={() => onEdit(row.original.id)} title="تعديل">
+                <Edit className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         ),
       }),

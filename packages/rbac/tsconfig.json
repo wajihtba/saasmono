@@ -1,5 +1,11 @@
 {
   "extends": "@repo/typescript-config/base.json",
+  "compilerOptions": {
+    // Consumed as source by the Next app and by the bundled server, never as
+    // published Node ESM, so relative imports stay extensionless like theirs.
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
+  },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,6 +1,8 @@
 'use client'
 
+import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
+import { Permission } from '@repo/rbac'
 import { Badge, Button, GenericTable } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -22,6 +24,7 @@ interface SessionNoteListItem {
   isPrivate: boolean
   timetableId: string
   createdAt: Date
+  createdById: string
   timetable: {
     id: string
     title: string
@@ -38,6 +41,7 @@ const columnHelper = createColumnHelper<SessionNoteListItem>()
 
 export function SessionNotesTable({ onCreateNew }: SessionNotesTableProps) {
   const router = useRouter()
+  const { canForOwn } = usePermissions()
   const { data: sessionNotes = [], isLoading, error } = useQuery(
     orpc.management.sessionNotes.getSessionNotesList.queryOptions({})
   )
@@ -135,14 +139,16 @@ export function SessionNotesTable({ onCreateNew }: SessionNotesTableProps) {
             <Button variant="ghost" size="sm" onClick={() => handleViewNote(row.original.id)} title="عرض">
               <Eye className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => handleEditNote(row.original.id)} title="تعديل">
-              <Edit className="h-4 w-4" />
-            </Button>
+            {canForOwn(Permission.NOTE_WRITE, row.original.createdById) && (
+              <Button variant="ghost" size="sm" onClick={() => handleEditNote(row.original.id)} title="تعديل">
+                <Edit className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         ),
       }),
     ],
-    [router]
+    [router, canForOwn]
   )
 
   const quickFilters = useMemo(

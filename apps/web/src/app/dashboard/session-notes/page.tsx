@@ -2,10 +2,13 @@
 
 import { Card } from '@repo/ui'
 import { SessionNotesTable } from '@/components/sessionNotes/session-notes-table'
+import { usePermissions } from '@/hooks/use-permissions'
+import { Permission } from '@repo/rbac'
 import { useRouter } from 'next/navigation'
 
 export default function SessionNotesPage() {
   const router = useRouter()
+  const { can } = usePermissions()
 
   const handleCreateNew = () => {
     router.push('/dashboard/session-notes/new')
@@ -18,7 +21,7 @@ export default function SessionNotesPage() {
       </div>
 
       <Card className="p-4 md:p-6">
-        <SessionNotesTable onCreateNew={handleCreateNew} />
+        <SessionNotesTable onCreateNew={can(Permission.NOTE_WRITE) ? handleCreateNew : undefined} />
       </Card>
     </div>
   )
