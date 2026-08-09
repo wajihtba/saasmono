@@ -378,7 +378,9 @@ export function ParentsTable({ onEdit, onCreateNew }: ParentsTableProps) {
           </div>
           <div>
             <h3 className="text-lg font-semibold">لا يوجد أولياء أمور</h3>
-            <p className="text-muted-foreground mt-1">ابدأ بإضافة أولياء الأمور لإدارة العلاقات العائلية</p>
+            <p className="text-muted-foreground mt-1">
+              {onCreateNew ? 'ابدأ بإضافة أولياء الأمور لإدارة العلاقات العائلية' : 'لا توجد بيانات لعرضها'}
+            </p>
           </div>
           {emptyStateAction}
         </div>

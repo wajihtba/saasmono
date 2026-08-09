@@ -1,0 +1,4 @@
+[     114ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:9001/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5949
+[     167ms] [LOG] [Fast Refresh] done in 153ms @ http://localhost:9001/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5809
+[     314ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:9001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:14537
+[     630ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['link']. This can lead to issues. @ http://localhost:9001/_next/static/chunks/node_modules_%40tiptap_core_dist_f5afb391._.js:1040

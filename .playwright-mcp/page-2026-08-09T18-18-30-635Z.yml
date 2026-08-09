@@ -1,0 +1,56 @@
+- generic [active] [ref=f8e1]:
+  - generic [ref=f8e2]:
+    - banner [ref=f8e3]:
+      - generic [ref=f8e5]:
+        - link "العودة للرئيسية" [ref=f8e6] [cursor=pointer]:
+          - /url: /
+        - img "منارة" [ref=f8e11]
+    - generic [ref=f8e12]:
+      - generic [ref=f8e18]:
+        - heading "أهلاً بك في منصة منارة" [level=1] [ref=f8e19]: أهلاً بك فيمنصة منارة
+        - paragraph [ref=f8e20]: منصة متكاملة لإدارة المؤسسات التعليمية بأحدث التقنيات العالمية
+        - generic [ref=f8e21]:
+          - generic [ref=f8e27]:
+            - heading "إدارة شاملة للطلاب" [level=3] [ref=f8e28]
+            - paragraph [ref=f8e29]: متابعة الحضور والدرجات والسلوك الأكاديمي
+          - generic [ref=f8e37]:
+            - heading "تنظيم فريق التدريس" [level=3] [ref=f8e38]
+            - paragraph [ref=f8e39]: إدارة المعلمين والموظفين بنظام صلاحيات متقدم
+          - generic [ref=f8e44]:
+            - heading "مناهج تفاعلية" [level=3] [ref=f8e45]
+            - paragraph [ref=f8e46]: أدوات تعليمية حديثة ومحتوى رقمي متطور
+          - generic [ref=f8e51]:
+            - heading "جدولة ذكية" [level=3] [ref=f8e52]
+            - paragraph [ref=f8e53]: تنظيم الحصص والامتحانات تلقائياً
+        - generic [ref=f8e54]:
+          - generic [ref=f8e55]:
+            - generic [ref=f8e56]:
+              - generic [ref=f8e57]: 99.9%
+              - generic [ref=f8e58]: وقت التشغيل
+            - generic [ref=f8e59]:
+              - generic [ref=f8e60]: 100+
+              - generic [ref=f8e61]: مؤسسة تعليمية
+            - generic [ref=f8e62]:
+              - generic [ref=f8e63]: 50k+
+              - generic [ref=f8e64]: مستخدم نشط
+          - paragraph [ref=f8e65]: ✨ منصة موثوقة من قبل أفضل المؤسسات التعليمية في المنطقة
+      - generic [ref=f8e69]:
+        - generic [ref=f8e70]:
+          - heading "تسجيل الدخول" [level=2] [ref=f8e71]
+          - paragraph [ref=f8e72]: أدخل بياناتك للوصول إلى حسابك
+        - generic [ref=f8e74]:
+          - generic [ref=f8e76]:
+            - generic [ref=f8e77]: البريد الإلكتروني
+            - textbox "البريد الإلكتروني" [ref=f8e82]:
+              - /placeholder: أدخل بريدك الإلكتروني
+          - generic [ref=f8e84]:
+            - generic [ref=f8e85]:
+              - button "نسيت كلمة المرور؟" [ref=f8e86]
+              - generic [ref=f8e87]: كلمة المرور
+            - generic [ref=f8e88]:
+              - textbox "كلمة المرور" [ref=f8e92]:
+                - /placeholder: أدخل كلمة المرور
+              - button [ref=f8e93]
+          - button "تسجيل الدخول" [ref=f8e97] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=f8e100]

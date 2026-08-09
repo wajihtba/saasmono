@@ -405,7 +405,7 @@ export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProp
           <div>
             <h3 className="text-lg font-semibold">لا توجد تذاكر</h3>
             <p className="text-muted-foreground mt-1">
-              ابدأ بإصدار تذاكر الدخول للطلاب المتغيبين
+              {onGenerateNew ? 'ابدأ بإصدار تذاكر الدخول للطلاب المتغيبين' : 'لا توجد تذاكر متاحة لك حالياً'}
             </p>
           </div>
           {emptyStateAction}

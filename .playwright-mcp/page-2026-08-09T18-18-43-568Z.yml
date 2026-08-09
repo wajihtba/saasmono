@@ -1,0 +1,30 @@
+- generic [active] [ref=f9e1]:
+  - generic [ref=f9e2]:
+    - generic [ref=f9e5]:
+      - list [ref=f9e7]:
+        - listitem [ref=f9e8]:
+          - img "منارة" [ref=f9e11]
+      - generic [ref=f9e12]:
+        - generic [ref=f9e14]:
+          - list
+          - list
+        - list [ref=f9e17]:
+          - listitem [ref=f9e18]:
+            - link "المساعدة" [ref=f9e19] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=f9e24]:
+            - link "البحث" [ref=f9e25] [cursor=pointer]:
+              - /url: "#"
+      - list [ref=f9e31]:
+        - listitem [ref=f9e32]:
+          - button "CN User" [ref=f9e33] [cursor=pointer]:
+            - generic [ref=f9e34]: CN
+            - generic [ref=f9e36]: User
+    - main [ref=f9e42]:
+      - generic [ref=f9e44]:
+        - button "Toggle Sidebar" [ref=f9e45] [cursor=pointer]
+        - heading "Documents" [level=1] [ref=f9e47]
+      - generic [ref=f9e52]:
+        - heading "كراس القسم" [level=1] [ref=f9e54]
+        - generic [ref=f9e55]: جاري التحميل...
+  - region "Notifications alt+T"

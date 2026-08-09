@@ -1,0 +1,40 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "العودة للرئيسية" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - img "منارة" [ref=e11]
+    - generic [ref=e12]:
+      - generic [ref=e18]:
+        - heading "أهلاً بك في منصة منارة" [level=1] [ref=e19]: أهلاً بك فيمنصة منارة
+        - paragraph [ref=e20]: منصة متكاملة لإدارة المؤسسات التعليمية بأحدث التقنيات العالمية
+        - generic [ref=e21]:
+          - generic [ref=e27]:
+            - heading "إدارة شاملة للطلاب" [level=3] [ref=e28]
+            - paragraph [ref=e29]: متابعة الحضور والدرجات والسلوك الأكاديمي
+          - generic [ref=e37]:
+            - heading "تنظيم فريق التدريس" [level=3] [ref=e38]
+            - paragraph [ref=e39]: إدارة المعلمين والموظفين بنظام صلاحيات متقدم
+          - generic [ref=e44]:
+            - heading "مناهج تفاعلية" [level=3] [ref=e45]
+            - paragraph [ref=e46]: أدوات تعليمية حديثة ومحتوى رقمي متطور
+          - generic [ref=e51]:
+            - heading "جدولة ذكية" [level=3] [ref=e52]
+            - paragraph [ref=e53]: تنظيم الحصص والامتحانات تلقائياً
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - generic [ref=e57]: 99.9%
+              - generic [ref=e58]: وقت التشغيل
+            - generic [ref=e59]:
+              - generic [ref=e60]: 100+
+              - generic [ref=e61]: مؤسسة تعليمية
+            - generic [ref=e62]:
+              - generic [ref=e63]: 50k+
+              - generic [ref=e64]: مستخدم نشط
+          - paragraph [ref=e65]: ✨ منصة موثوقة من قبل أفضل المؤسسات التعليمية في المنطقة
+      - generic [ref=e70]:
+        - heading "تسجيل الدخول" [level=2] [ref=e71]
+        - paragraph [ref=e72]: أدخل بياناتك للوصول إلى حسابك
+  - region "Notifications alt+T"

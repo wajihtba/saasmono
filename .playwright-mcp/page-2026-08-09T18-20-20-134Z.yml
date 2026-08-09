@@ -1,0 +1,32 @@
+- generic [active] [ref=f14e1]:
+  - generic [ref=f14e2]:
+    - generic [ref=f14e5]:
+      - list [ref=f14e7]:
+        - listitem [ref=f14e8]:
+          - img "منارة" [ref=f14e11]
+      - generic [ref=f14e12]:
+        - generic [ref=f14e14]:
+          - list
+          - list
+        - list [ref=f14e17]:
+          - listitem [ref=f14e18]:
+            - link "المساعدة" [ref=f14e19] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=f14e24]:
+            - link "البحث" [ref=f14e25] [cursor=pointer]:
+              - /url: "#"
+      - list [ref=f14e31]:
+        - listitem [ref=f14e32]:
+          - button "CN User" [ref=f14e33] [cursor=pointer]:
+            - generic [ref=f14e34]: CN
+            - generic [ref=f14e36]: User
+    - main [ref=f14e42]:
+      - generic [ref=f14e44]:
+        - button "Toggle Sidebar" [ref=f14e45] [cursor=pointer]
+        - heading "Documents" [level=1] [ref=f14e47]
+      - generic [ref=f14e52]:
+        - generic [ref=f14e53]:
+          - heading "تذاكر الدخول" [level=1] [ref=f14e54]
+          - paragraph [ref=f14e55]: إدارة تذاكر الدخول للطلاب المتغيبين
+        - generic [ref=f14e56]: جاري التحميل...
+  - region "Notifications alt+T"

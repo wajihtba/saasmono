@@ -284,7 +284,9 @@ export function EducationSubjectTable({ onEdit, onDelete, onCreateNew }: Educati
           </div>
           <div>
             <h3 className="text-lg font-semibold">لا توجد مواد دراسية</h3>
-            <p className="text-muted-foreground mt-1">ابدأ بإضافة المواد الدراسية لتنظيم المنهج التعليمي</p>
+            <p className="text-muted-foreground mt-1">
+              {onCreateNew ? 'ابدأ بإضافة المواد الدراسية لتنظيم المنهج التعليمي' : 'لم تُضف مواد دراسية بعد'}
+            </p>
           </div>
           {emptyStateAction}
         </div>

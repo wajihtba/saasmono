@@ -324,7 +324,9 @@ export function StudentsTable({ onEdit, onCreateNew }: StudentsTableProps) {
           </div>
           <div>
             <h3 className="text-lg font-semibold">لا يوجد طلاب</h3>
-            <p className="text-muted-foreground mt-1">ابدأ بإضافة الطلاب لإدارة القوائم الطلابية</p>
+            <p className="text-muted-foreground mt-1">
+              {onCreateNew ? 'ابدأ بإضافة الطلاب لإدارة القوائم الطلابية' : 'لا يوجد طلاب متاحون لك حالياً'}
+            </p>
           </div>
           {emptyStateAction}
         </div>

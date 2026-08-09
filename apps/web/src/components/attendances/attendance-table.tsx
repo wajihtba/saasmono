@@ -333,7 +333,9 @@ export function AttendanceTable({ onCreateNew }: AttendanceTableProps) {
           </div>
           <div>
             <h3 className="text-lg font-semibold">لا توجد سجلات حضور</h3>
-            <p className="text-muted-foreground mt-1">ابدأ بإضافة سجل حضور جديد</p>
+            <p className="text-muted-foreground mt-1">
+              {onCreateNew ? 'ابدأ بإضافة سجل حضور جديد' : 'لا توجد سجلات حضور متاحة لك حالياً'}
+            </p>
           </div>
           {emptyStateAction}
         </div>

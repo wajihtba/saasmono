@@ -339,7 +339,9 @@ export function TeachersTable({ onEdit, onDelete, onCreateNew }: TeachersTablePr
           </div>
           <div>
             <h3 className="text-lg font-semibold">لا يوجد معلمون</h3>
-            <p className="text-muted-foreground mt-1">ابدأ بإضافة المعلمين لإدارة الهيئة التدريسية</p>
+            <p className="text-muted-foreground mt-1">
+              {onCreateNew ? 'ابدأ بإضافة المعلمين لإدارة الهيئة التدريسية' : 'لا توجد بيانات لعرضها'}
+            </p>
           </div>
           {emptyStateAction}
         </div>

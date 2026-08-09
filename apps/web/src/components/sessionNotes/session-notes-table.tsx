@@ -267,7 +267,9 @@ export function SessionNotesTable({ onCreateNew }: SessionNotesTableProps) {
           </div>
           <div>
             <h3 className="text-lg font-semibold">لا يوجد كراس قسم</h3>
-            <p className="text-muted-foreground mt-1">ابدأ بإضافة كراس القسم</p>
+            <p className="text-muted-foreground mt-1">
+              {onCreateNew ? 'ابدأ بإضافة كراس القسم' : 'لا توجد كراسات متاحة لك حالياً'}
+            </p>
           </div>
           {emptyStateAction}
         </div>

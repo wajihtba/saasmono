@@ -283,7 +283,9 @@ export function ClassroomsTable({ onEdit, onDelete, onCreateNew }: ClassroomsTab
           </div>
           <div>
             <h3 className="text-lg font-semibold">لا توجد فصول دراسية</h3>
-            <p className="text-muted-foreground mt-1">ابدأ بإضافة الفصول الدراسية لتنظيم العملية التعليمية</p>
+            <p className="text-muted-foreground mt-1">
+              {onCreateNew ? 'ابدأ بإضافة الفصول الدراسية لتنظيم العملية التعليمية' : 'لا توجد فصول متاحة لك حالياً'}
+            </p>
           </div>
           {emptyStateAction}
         </div>
