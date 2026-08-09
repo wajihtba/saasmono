@@ -254,4 +254,19 @@
     @apply bg-background text-foreground;
     letter-spacing: var(--tracking-normal);
   }
+
+  /* Always reserve the scrollbar track so the page never reflows when a
+     dropdown, dialog or sheet locks scrolling. No-op on touch devices,
+     which use overlay scrollbars with a zero-width gutter. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  /* The gutter above already keeps the layout steady, so drop the offset
+     react-remove-scroll adds on lock -- it would otherwise pull the page
+     15px off-centre. The html prefix outranks the runtime <style> tag. */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
 }
