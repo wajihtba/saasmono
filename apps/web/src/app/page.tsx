@@ -90,15 +90,15 @@ export default function Home() {
               </div>
               <div className="flex items-center justify-center gap-8 lg:justify-start">
                 <div className="text-center">
-                  <div className="text-primary text-2xl font-bold">١٠٠+</div>
+                  <div className="text-primary text-2xl font-bold">100+</div>
                   <div className="text-sm text-gray-600">مؤسسة تعليمية</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-primary text-2xl font-bold">٥٠,٠٠٠+</div>
+                  <div className="text-primary text-2xl font-bold">50,000+</div>
                   <div className="text-sm text-gray-600">طالب وطالبة</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-primary text-2xl font-bold">٩٩.٩%</div>
+                  <div className="text-primary text-2xl font-bold">99.9%</div>
                   <div className="text-sm text-gray-600">وقت التشغيل</div>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default function Home() {
                   },
                   {
                     title: 'دعم فني متميز',
-                    description: 'فريق دعم محلي متاح ٢٤/٧ لمساعدتك في أي وقت',
+                    description: 'فريق دعم محلي متاح 24/7 لمساعدتك في أي وقت',
                   },
                   {
                     title: 'تحديثات مستمرة',
@@ -269,9 +269,9 @@ export default function Home() {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star key={star} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                   ))}
-                  <span className="mr-2">٤.٩ من ٥</span>
+                  <span className="mr-2">4.9 من 5</span>
                 </div>
-                <p className="text-sm opacity-90">تقييم أكثر من ١٠٠٠ مؤسسة تعليمية</p>
+                <p className="text-sm opacity-90">تقييم أكثر من 1000 مؤسسة تعليمية</p>
               </div>
             </div>
           </div>
@@ -293,7 +293,7 @@ export default function Home() {
               variant="outline"
               className="border-white px-8 py-6 text-lg text-white hover:bg-white hover:text-purple-600"
             >
-              ابدأ التجربة المجانية لمدة ٣٠ يوماً
+              ابدأ التجربة المجانية لمدة 30 يوماً
             </Button>
           </div>
         </div>
@@ -387,7 +387,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-8 border-t border-gray-800 pt-8 text-center text-gray-400">
-            <p>&copy; ٢٠٢٤ منصة منارة. جميع الحقوق محفوظة.</p>
+            <p>&copy; 2024 منصة منارة. جميع الحقوق محفوظة.</p>
           </div>
         </div>
       </footer>

@@ -1,6 +1,7 @@
 'use client'
 
 import { Badge, Card } from '@repo/ui'
+import { formatNumber, formatPercent } from '@repo/ui/lib/format'
 import { CheckCircle2, XCircle, Clock, AlertCircle, HeartPulse, User } from 'lucide-react'
 
 interface AttendanceSummaryProps {
@@ -93,9 +94,9 @@ export function AttendanceSummary({ attendances, generalNotes }: AttendanceSumma
                   <Icon className={`h-5 w-5 ${config.color}`} />
                 </div>
                 <div className="flex-1">
-                  <div className="text-2xl font-bold">{count}</div>
+                  <div className="text-2xl font-bold">{formatNumber(count)}</div>
                   <div className="text-xs text-muted-foreground">{config.label}</div>
-                  <div className="text-xs text-muted-foreground">{percentage}%</div>
+                  <div className="text-xs text-muted-foreground">{formatPercent(percentage)}</div>
                 </div>
               </div>
             </Card>

@@ -1,6 +1,7 @@
 // Re-export all components
 export * from "./components/ui";
 export { cn } from "./lib/utils";
+export { formatNumber, formatPercent, formatDelta } from "./lib/format";
 // Radix primitives default to LTR unless this provider wraps the tree.
 export { DirectionProvider } from "@radix-ui/react-direction";
 export {

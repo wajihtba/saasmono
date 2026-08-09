@@ -87,15 +87,15 @@ export default function LoginPage() {
             <div className="mt-12 rounded-2xl bg-white/10 p-6 backdrop-blur-sm">
               <div className="mb-4 flex items-center justify-between">
                 <div className="text-right">
-                  <div className="text-2xl font-bold">٩٩.٩%</div>
+                  <div className="text-2xl font-bold">99.9%</div>
                   <div className="text-sm opacity-80">وقت التشغيل</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold">١٠٠+</div>
+                  <div className="text-2xl font-bold">100+</div>
                   <div className="text-sm opacity-80">مؤسسة تعليمية</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold">٥٠k+</div>
+                  <div className="text-2xl font-bold">50k+</div>
                   <div className="text-sm opacity-80">مستخدم نشط</div>
                 </div>
               </div>

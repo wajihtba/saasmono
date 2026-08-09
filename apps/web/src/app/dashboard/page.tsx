@@ -5,6 +5,7 @@ import { useOrgRole } from '@/hooks/use-org-role'
 import { authClient } from '@/lib/auth-client'
 import { filterByHref } from '@/lib/nav-access'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui'
+import { formatDelta, formatNumber, formatPercent } from '@repo/ui/lib/format'
 import { AlertCircle, BookOpen, Calendar, CheckCircle, Clock, GraduationCap, TrendingUp, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -40,32 +41,32 @@ export default function Dashboard() {
   const stats = [
     {
       title: 'إجمالي الطلاب',
-      value: '١,٢٣٤',
-      change: '+٨.٢%',
+      value: formatNumber(1234),
+      change: formatDelta(8.2),
       changeType: 'positive' as const,
       icon: GraduationCap,
       description: 'مقارنة بالشهر الماضي',
     },
     {
       title: 'هيئة التدريس',
-      value: '٩٨',
-      change: '+٢.١%',
+      value: formatNumber(98),
+      change: formatDelta(2.1),
       changeType: 'positive' as const,
       icon: Users,
       description: 'معلم ومعلمة نشطين',
     },
     {
       title: 'المقررات الدراسية',
-      value: '٤٥',
-      change: '+١٢.٥%',
+      value: formatNumber(45),
+      change: formatDelta(12.5),
       changeType: 'positive' as const,
       icon: BookOpen,
       description: 'مقرر دراسي متاح',
     },
     {
       title: 'معدل الحضور',
-      value: '٩٥.٣%',
-      change: '-١.٧%',
+      value: formatPercent(95.3),
+      change: formatDelta(-1.7),
       changeType: 'negative' as const,
       icon: TrendingUp,
       description: 'هذا الأسبوع',
@@ -78,7 +79,7 @@ export default function Dashboard() {
       type: 'student_enrolled',
       title: 'تسجيل طالب جديد',
       description: 'محمد أحمد السالمي - الصف الثامن أ',
-      time: 'منذ ١٠ دقائق',
+      time: 'منذ 10 دقائق',
       icon: GraduationCap,
       status: 'success',
     },
@@ -87,7 +88,7 @@ export default function Dashboard() {
       type: 'grade_updated',
       title: 'تحديث الدرجات',
       description: 'امتحان الرياضيات - الصف السابع ب',
-      time: 'منذ ٣٠ دقيقة',
+      time: 'منذ 30 دقيقة',
       icon: CheckCircle,
       status: 'info',
     },
@@ -105,7 +106,7 @@ export default function Dashboard() {
       type: 'schedule_change',
       title: 'تعديل الجدول',
       description: 'تم تغيير موعد حصة الفيزياء',
-      time: 'منذ ٢ ساعة',
+      time: 'منذ 2 ساعة',
       icon: Calendar,
       status: 'info',
     },
@@ -115,22 +116,22 @@ export default function Dashboard() {
     {
       id: 1,
       title: 'اجتماع أولياء الأمور',
-      date: 'الثلاثاء ٢٥ سبتمبر',
-      time: '٤:٠٠ مساءً',
+      date: 'الثلاثاء 25 سبتمبر',
+      time: '4:00 مساءً',
       type: 'meeting',
     },
     {
       id: 2,
       title: 'امتحان الرياضيات النهائي',
-      date: 'الخميس ٢٧ سبتمبر',
-      time: '٨:٠٠ صباحاً',
+      date: 'الخميس 27 سبتمبر',
+      time: '8:00 صباحاً',
       type: 'exam',
     },
     {
       id: 3,
       title: 'يوم رياضي مدرسي',
-      date: 'السبت ٢٩ سبتمبر',
-      time: '٩:٠٠ صباحاً',
+      date: 'السبت 29 سبتمبر',
+      time: '9:00 صباحاً',
       type: 'event',
     },
   ]
