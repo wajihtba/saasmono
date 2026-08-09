@@ -6,6 +6,8 @@ import { Badge, Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, S
 import { useQuery } from '@tanstack/react-query'
 import { BookOpen, Building2, Calendar, GraduationCap, Mail, Shield, User, Users } from 'lucide-react'
 
+import type { StudentListItem } from './types'
+
 interface StudentEducationLevel {
   id: string
   level: number
@@ -31,7 +33,7 @@ interface StudentParent {
   parentId: string
   parentName: string
   parentLastName: string
-  parentemail: string
+  parentEmail: string
   relationshipType: string
   createdAt: Date
 }
@@ -85,17 +87,6 @@ interface StudentDetailedResponse {
   classroom: StudentClassroom | null
   groups: StudentGroup[]
   subjects: StudentSubjectWithTeachers[]
-}
-
-interface StudentListItem {
-  id: string
-  name: string
-  lastName: string
-  email: string
-  userType: 'student'
-  createdAt: Date
-  updatedAt: Date
-  classroom: StudentClassroom | null
 }
 
 interface StudentViewSheetProps {
@@ -185,7 +176,7 @@ export function StudentViewSheet({ student, open, onOpenChange }: StudentViewShe
                     </h3>
                     {detailedStudent.parents.length > 0 ? (
                       <div className="space-y-2">
-                        {detailedStudent.parents.map((parent) => (
+                        {detailedStudent.parents.map((parent: StudentParent) => (
                           <div key={parent.relationId} className="rounded-lg border p-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -290,7 +281,7 @@ export function StudentViewSheet({ student, open, onOpenChange }: StudentViewShe
                     </h3>
                     {detailedStudent.groups.length > 0 ? (
                       <div className="space-y-2">
-                        {detailedStudent.groups.map((group) => (
+                        {detailedStudent.groups.map((group: StudentGroup) => (
                           <div key={group.id} className="rounded-lg border p-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -332,24 +323,24 @@ export function StudentViewSheet({ student, open, onOpenChange }: StudentViewShe
                     </h3>
                     {detailedStudent.subjects.length > 0 ? (
                       <div className="space-y-3">
-                        {detailedStudent.subjects.map((subject) => (
+                        {detailedStudent.subjects.map((subject: StudentSubjectWithTeachers) => (
                           <div key={subject.id} className="rounded-lg border p-3">
                             <div className="mb-2 flex items-center gap-2">
                               <BookOpen className="text-muted-foreground h-4 w-4" />
                               <span className="text-sm font-medium">{subject.displayNameAr || subject.name}</span>
                             </div>
                             <div className="space-y-1">
-                              {subject.teachers.map((teacher) => (
+                              {subject.teachers.map((teacher: StudentTeacher) => (
                                 <div key={teacher.id} className="flex items-center justify-between text-xs">
                                   <span className="text-muted-foreground">
                                     {teacher.name} {teacher.lastName}
                                   </span>
                                   <div className="flex gap-1">
-                                    <Badge variant="outline" size="sm">
+                                    <Badge variant="outline">
                                       {teacher.role}
                                     </Badge>
                                     {teacher.isMainTeacher && (
-                                      <Badge variant="default" size="sm">
+                                      <Badge variant="default">
                                         مدرس رئيسي
                                       </Badge>
                                     )}

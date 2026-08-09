@@ -1,4 +1,4 @@
-import { canAccessRoute, type Role } from '@repo/rbac'
+import { canAccessRoute, scopeFor, Scope, type Permission, type Role } from '@repo/rbac'
 
 /**
  * Navigation entries are filtered from the same route table the guard uses, so
@@ -28,6 +28,15 @@ export function filterByHref<T extends HrefItem>(
   basePath = '/dashboard'
 ): T[] {
   return items.filter((item) => canAccessRoute(role, toAbsolute(item.href, basePath)))
+}
+
+/**
+ * Drops entries whose action the role cannot perform, whatever the route says.
+ * A teacher may open the students list but not add to it, so the "add student"
+ * shortcut has to go even though its destination stays.
+ */
+export function filterByPermission<T extends { permission: Permission }>(items: readonly T[], role: Role | null): T[] {
+  return items.filter((item) => role != null && scopeFor(role, item.permission) !== Scope.NONE)
 }
 
 export function filterSidebarData<

@@ -1,5 +1,7 @@
 'use client'
 
+import { use } from 'react'
+
 import { orpc } from '@/utils/orpc'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
@@ -9,17 +11,19 @@ import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface PageProps {
-  params: {
+  // Next 15 hands route params to the page as a promise.
+  params: Promise<{
     noteId: string
-  }
+  }>
 }
 
 export default function SessionNoteDetailPage({ params }: PageProps) {
+  const { noteId } = use(params)
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: sessionNote, isLoading, error } = useQuery(
     orpc.management.sessionNotes.getSessionNoteById.queryOptions({
-      input: { sessionNoteId: params.noteId },
+      input: { sessionNoteId: noteId },
     })
   ) as any
 
@@ -41,7 +45,7 @@ export default function SessionNoteDetailPage({ params }: PageProps) {
 
   const handleDelete = () => {
     if (window.confirm('هل أنت متأكد من حذف كراس القسم؟')) {
-      deleteMutation.mutate({ sessionNoteId: params.noteId })
+      deleteMutation.mutate({ sessionNoteId: noteId })
     }
   }
 
@@ -74,7 +78,7 @@ export default function SessionNoteDetailPage({ params }: PageProps) {
         createdAt={sessionNote.createdAt}
         timetable={sessionNote.timetable}
         createdBy={sessionNote.createdBy}
-        noteId={params.noteId}
+        noteId={noteId}
         onDelete={handleDelete}
       />
 

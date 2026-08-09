@@ -1,5 +1,7 @@
 'use client'
 
+import { use } from 'react'
+
 import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
 import { Permission } from '@repo/rbac'
@@ -11,19 +13,21 @@ import { ArrowRight, Loader2 } from 'lucide-react'
 import { Button } from '@repo/ui'
 
 interface PageProps {
-  params: {
+  // Next 15 hands route params to the page as a promise.
+  params: Promise<{
     noteId: string
-  }
+  }>
 }
 
 export default function EditSessionNotePage({ params }: PageProps) {
+  const { noteId } = use(params)
   const router = useRouter()
   const queryClient = useQueryClient()
   const { canForOwn, isPending: isRolePending } = usePermissions()
 
   const { data: sessionNote, isLoading, error } = useQuery(
     orpc.management.sessionNotes.getSessionNoteById.queryOptions({
-      input: { sessionNoteId: params.noteId },
+      input: { sessionNoteId: noteId },
     })
   ) as any
 
@@ -37,11 +41,11 @@ export default function EditSessionNotePage({ params }: PageProps) {
       })
       queryClient.invalidateQueries({
         queryKey: orpc.management.sessionNotes.getSessionNoteById.queryKey({
-          input: { sessionNoteId: params.noteId },
+          input: { sessionNoteId: noteId },
         }),
       })
       // Navigate to detail page
-      router.push(`/dashboard/session-notes/${params.noteId}`)
+      router.push(`/dashboard/session-notes/${noteId}`)
     },
     onError: (error: any) => {
       toast.error(error.message || 'حدث خطأ أثناء تحديث كراس القسم')
@@ -52,13 +56,13 @@ export default function EditSessionNotePage({ params }: PageProps) {
     // Remove timetableId from update data (can't be changed)
     const { timetableId, ...updateData } = data
     await updateMutation.mutateAsync({
-      sessionNoteId: params.noteId,
+      sessionNoteId: noteId,
       data: updateData,
     })
   }
 
   const handleCancel = () => {
-    router.push(`/dashboard/session-notes/${params.noteId}`)
+    router.push(`/dashboard/session-notes/${noteId}`)
   }
 
   if (isLoading || isRolePending) {
@@ -91,7 +95,7 @@ export default function EditSessionNotePage({ params }: PageProps) {
         <div className="space-y-4 text-center">
           <h3 className="text-lg font-semibold">لا تملك صلاحية تعديل هذا الكراس</h3>
           <p className="text-muted-foreground">يمكن لصاحب الكراس فقط تعديله</p>
-          <Button variant="outline" onClick={() => router.push(`/dashboard/session-notes/${params.noteId}`)}>
+          <Button variant="outline" onClick={() => router.push(`/dashboard/session-notes/${noteId}`)}>
             العودة إلى الكراس
           </Button>
         </div>
@@ -138,7 +142,7 @@ export default function EditSessionNotePage({ params }: PageProps) {
         <div className="bg-muted/50 rounded-lg p-4">
           <h3 className="text-sm font-semibold mb-2">المرفقات الحالية</h3>
           <div className="space-y-2">
-            {sessionNote.attachments.map((attachment) => (
+            {sessionNote.attachments.map((attachment: { id: string; fileName: string }) => (
               <div key={attachment.id} className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">•</span>
                 <span>{attachment.fileName}</span>

@@ -1,5 +1,6 @@
 'use client'
 
+import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
 import { Badge, Button, GenericTable } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
@@ -58,6 +59,7 @@ interface ParentsTableProps {
 const columnHelper = createColumnHelper<ParentWithChildren>()
 
 export function ParentsTable({ onEdit, onCreateNew }: ParentsTableProps) {
+  const { isPending: isRolePending } = usePermissions()
   const { data: parents = [], isLoading, error } = useQuery(orpc.management.parents.getParentsList.queryOptions())
 
   // Type assertion for parents data
@@ -361,6 +363,10 @@ export function ParentsTable({ onEdit, onCreateNew }: ParentsTableProps) {
       <Plus className="me-1 h-4 w-4" />
       إضافة ولي أمر
     </Button>
+  ) : isRolePending ? (
+    // Space held while the role resolves, so the toolbar does not reflow when
+    // the button turns out to be allowed.
+    <div className="h-9 w-32" aria-hidden />
   ) : null
 
   if (typedParents.length === 0 && !isLoading) {

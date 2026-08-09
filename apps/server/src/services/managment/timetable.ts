@@ -594,9 +594,7 @@ export class TimetableManagementService {
     let pathSegments = ['organization', orgId]
 
     // Get institution level from the first timetable session (they should all have the same institution level)
-    const institutionLevelId = timetableData.length > 0 && timetableData[0].institutionLevel
-      ? timetableData[0].institutionLevel.id
-      : 'default'
+    const institutionLevelId = timetableData[0]?.institutionLevel?.id ?? 'default'
 
     pathSegments.push('institution-level', institutionLevelId)
 

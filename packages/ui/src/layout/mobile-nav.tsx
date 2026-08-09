@@ -38,10 +38,17 @@ export interface DrawerItem {
   icon: React.ComponentType<{ className?: string }>;
   description: string;
 }
-export interface DrawerCategory extends DrawerItem {
-  category?: string;
-  items?: Array<DrawerItem>;
+/** A titled group of links in the drawer. */
+export interface DrawerGroup {
+  category: string;
+  items: Array<DrawerItem>;
 }
+
+/** The drawer takes either a group of links or a single link. */
+export type DrawerCategory = DrawerGroup | DrawerItem;
+
+export const isDrawerGroup = (entry: DrawerCategory): entry is DrawerGroup =>
+  "items" in entry;
 
 export interface NotificationInfo {
   count?: number;
@@ -381,46 +388,36 @@ export function MobileNav({
                       )}
 
                       {/* Navigation Categories */}
-                      {drawerItems.map((category) => {
-                        return (
-                          <div key={category.category || category.title}>
-                            {category.category && (
-                              <>
-                                <h3 className="text-sm font-semibold text-gray-900 mb-3">
-                                  {category.category}
-                                </h3>
-                                <div className="space-y-2">
-                                  {category.items?.map((item) => {
-                                    const active = checkIsActive(
-                                      item.href,
-                                      pathname,
-                                    );
-                                    return (
-                                      <ItemNav
-                                        key={item.href}
-                                        item={item}
-                                        basePath={basePath}
-                                        active={active}
-                                        handleNavigation={handleNavigation}
-                                      />
-                                    );
-                                  })}
-                                </div>
-                              </>
-                            )}
-                            {category.title && (
-                              <ItemNav
-                                key={category.href}
-                                item={category}
-                                basePath={basePath}
-                                active={checkIsActive(category.href, pathname)}
-                                handleNavigation={handleNavigation}
-                                isOutlined
-                              />
-                            )}
+                      {drawerItems.map((entry) =>
+                        isDrawerGroup(entry) ? (
+                          <div key={entry.category}>
+                            <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                              {entry.category}
+                            </h3>
+                            <div className="space-y-2">
+                              {entry.items.map((item) => (
+                                <ItemNav
+                                  key={item.href}
+                                  item={item}
+                                  basePath={basePath}
+                                  active={checkIsActive(item.href, pathname)}
+                                  handleNavigation={handleNavigation}
+                                />
+                              ))}
+                            </div>
                           </div>
-                        );
-                      })}
+                        ) : (
+                          <div key={entry.href}>
+                            <ItemNav
+                              item={entry}
+                              basePath={basePath}
+                              active={checkIsActive(entry.href, pathname)}
+                              handleNavigation={handleNavigation}
+                              isOutlined
+                            />
+                          </div>
+                        ),
+                      )}
                     </>
                   )}
                 </div>

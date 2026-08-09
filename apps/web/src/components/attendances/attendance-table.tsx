@@ -54,7 +54,7 @@ const columnHelper = createColumnHelper<AttendanceSessionListItem>()
 
 export function AttendanceTable({ onCreateNew }: AttendanceTableProps) {
   const router = useRouter()
-  const { can } = usePermissions()
+  const { can, isPending: isRolePending } = usePermissions()
 
   // The edit route is opened from inside the row, so the gate lives here rather
   // than in a handler the page could withhold.
@@ -318,6 +318,10 @@ export function AttendanceTable({ onCreateNew }: AttendanceTableProps) {
       <Calendar className="me-1 h-4 w-4" />
       إضافة حضور
     </Button>
+  ) : isRolePending ? (
+    // Space held while the role resolves, so the toolbar does not reflow when
+    // the button turns out to be allowed.
+    <div className="h-9 w-32" aria-hidden />
   ) : null
 
   if (typedAttendances.length === 0 && !isLoading) {

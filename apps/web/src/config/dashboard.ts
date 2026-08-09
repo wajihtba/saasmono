@@ -1,4 +1,5 @@
 import type { Route } from 'next'
+import { Permission } from '@repo/rbac'
 import type { LucideIcon } from 'lucide-react'
 import {
   BarChart3,
@@ -7,7 +8,6 @@ import {
   Calendar,
   CheckSquare,
   Database,
-  FileText,
   FileType,
   Folder,
   GraduationCap,
@@ -307,13 +307,18 @@ export const dashboardMobileNavItems = [
   },
 ]
 
-/** Drawer shortcuts. `href` drives both the role filter and the navigation. */
+/**
+ * Drawer shortcuts. `href` drives the navigation and the route filter;
+ * `permission` is what a role needs to actually carry the action out — the
+ * students list opens for a teacher, but adding a student does not.
+ */
 export const dashboardMobileQuickActions: Array<{
   title: string
   icon: LucideIcon
   action: string
   href: Route
   color: string
+  permission: Permission
 }> = [
   {
     title: 'إضافة طالب',
@@ -321,6 +326,7 @@ export const dashboardMobileQuickActions: Array<{
     action: 'add-student',
     href: '/dashboard/institution-settings/students',
     color: 'bg-blue-600 text-white',
+    permission: Permission.STUDENT_WRITE,
   },
   {
     title: 'تسجيل حضور',
@@ -328,6 +334,7 @@ export const dashboardMobileQuickActions: Array<{
     action: 'take-attendance',
     href: '/dashboard/attendances/new',
     color: 'bg-green-600 text-white',
+    permission: Permission.ATTENDANCE_WRITE,
   },
   {
     title: 'تصريح تأخير',
@@ -335,6 +342,7 @@ export const dashboardMobileQuickActions: Array<{
     action: 'late-pass',
     href: '/dashboard/late-pass-tickets/generate',
     color: 'bg-purple-600 text-white',
+    permission: Permission.LATEPASS_ISSUE,
   },
 ]
 
@@ -354,22 +362,16 @@ export const dashboardMobileDrawerItems = [
         icon: Ticket,
         description: 'إصدار وإدارة تذاكر الدخول للطلاب المتغيبين',
       },
-      {
-        title: 'التقارير',
-        href: 'reports',
-        icon: FileText,
-        description: 'التقارير والإحصائيات',
-      },
     ],
   },
   {
     category: 'الإعدادات',
     items: [
       {
-        title: 'إعدادات المدرسة',
-        href: 'settings',
+        title: 'المنهج الدراسي',
+        href: 'institution-settings/curriculum',
         icon: Settings,
-        description: 'الإعدادات العامة للمؤسسة',
+        description: 'المواد الدراسية والمستويات التعليمية',
       },
     ],
   },

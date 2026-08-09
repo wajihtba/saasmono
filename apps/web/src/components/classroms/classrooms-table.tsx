@@ -1,5 +1,6 @@
 'use client'
 
+import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
 import { Badge, Button, GenericTable } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
@@ -41,6 +42,7 @@ interface ClassroomsTableProps {
 const columnHelper = createColumnHelper<ClassroomListItem>()
 
 export function ClassroomsTable({ onEdit, onDelete, onCreateNew }: ClassroomsTableProps) {
+  const { isPending: isRolePending } = usePermissions()
   const {
     data: classrooms = [],
     isLoading,
@@ -266,6 +268,10 @@ export function ClassroomsTable({ onEdit, onDelete, onCreateNew }: ClassroomsTab
       <Plus className="me-1 h-4 w-4" />
       إضافة فصل
     </Button>
+  ) : isRolePending ? (
+    // Space held while the role resolves, so the toolbar does not reflow when
+    // the button turns out to be allowed.
+    <div className="h-9 w-32" aria-hidden />
   ) : null
 
   if (typedClassrooms.length === 0 && !isLoading) {

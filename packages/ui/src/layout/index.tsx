@@ -27,6 +27,8 @@ export type {
   MobileNavProps,
   MobileNavItem,
   DrawerCategory,
+  DrawerGroup,
+  DrawerItem,
   NotificationInfo,
   QuickAction as MobileQuickAction,
 } from "./mobile-nav";

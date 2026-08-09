@@ -434,9 +434,11 @@ export class AttendanceManagementService {
 
     let sessionId: string
 
-    if (existingSession.length > 0) {
+    const [existing] = existingSession
+
+    if (existing) {
       // Update existing session
-      sessionId = existingSession[0].id
+      sessionId = existing.id
       await this.db
         .update(attendanceSession)
         .set({
@@ -456,7 +458,11 @@ export class AttendanceManagementService {
         })
         .returning({ id: attendanceSession.id })
 
-      sessionId = newSession[0].id
+      const [created] = newSession
+      if (!created) {
+        throw new Error('Failed to create attendance session')
+      }
+      sessionId = created.id
     }
 
     // Check for existing attendance records

@@ -56,6 +56,8 @@ export type {
   MobileNavProps,
   MobileNavItem,
   DrawerCategory,
+  DrawerGroup,
+  DrawerItem,
   NotificationInfo,
   MobileQuickAction,
   RaqeemDashboardLayoutProps,

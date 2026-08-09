@@ -56,7 +56,7 @@ const TIME_SLOTS = [
 ]
 
 // Subject to room mapping preferences
-const SUBJECT_ROOM_PREFERENCES = {
+const SUBJECT_ROOM_PREFERENCES: Record<string, string[]> = {
   'الرياضيات': ['MATH-1', 'MATH-2'],
   'العلوم الفيزيائية': ['PHY-LAB', 'MATH-1'],
   'علوم الطبيعة والحياة': ['BIO-LAB', 'CHEM-LAB'],
@@ -131,7 +131,7 @@ async function seedTimetables(orgId: string) {
           .values({
             name: roomData.name,
             code: roomData.code,
-            capacity: roomData.capacity,
+            capacity: String(roomData.capacity),
             location: roomData.location,
             description: `${roomData.type} - ${roomData.location}`,
             orgId,
@@ -239,7 +239,7 @@ async function seedTimetables(orgId: string) {
       // Get preferred rooms for this subject
       const preferredRoomCodes = SUBJECT_ROOM_PREFERENCES[subject.name] || ['MATH-1']
       const availableRoomIds = preferredRoomCodes
-        .map(code => roomMap.get(code))
+        .map((code) => roomMap.get(code))
         .filter(Boolean)
 
       if (availableRoomIds.length === 0) {

@@ -70,6 +70,13 @@ export interface SeedData {
   members: TestMember[]
   educationLevels: TestEducationLevel[]
   educationSubjects: TestEducationSubject[]
+  /**
+   * Classrooms and groups are not seeded yet. The suites that filter or enroll
+   * by them read these and skip when they are absent, so they stay optional
+   * until the seeder creates them.
+   */
+  classrooms?: { id: string; name?: string; orgId?: string }[]
+  classroomGroups?: { id: string; name?: string; orgId?: string }[]
 }
 
 export const createTestUser = (overrides: Partial<TestUser> = {}): TestUser => ({

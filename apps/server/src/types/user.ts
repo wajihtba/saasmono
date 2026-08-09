@@ -54,15 +54,16 @@ export const UpdateStudentGroupMembershipStatusSchema = z.object({
 })
 
 // Output Schemas - Using coerce for date strings from API
+/**
+ * The relation row as the create/update routes and `parentChildrenRelations`
+ * actually return it. It carries ids only — the names of the two people are
+ * read through the parent and student routes, which join them.
+ */
 export const ParentStudentRelationSchema = z.object({
   id: z.string(),
   parentId: z.string(),
   studentId: z.string(),
   relationshipType: z.string(),
-  parentName: z.string(),
-  parentLastName: z.string(),
-  studentName: z.string(),
-  studentLastName: z.string(),
   createdAt: z.coerce.date(),
 })
 

@@ -1,5 +1,7 @@
 'use client'
 
+import { use } from 'react'
+
 import { orpc } from '@/utils/orpc'
 import { useQuery } from '@tanstack/react-query'
 import { AttendanceHeader } from '@/components/attendances/detail/attendance-header'
@@ -7,15 +9,17 @@ import { AttendanceSummary } from '@/components/attendances/detail/attendance-su
 import { Loader2 } from 'lucide-react'
 
 interface PageProps {
-  params: {
+  // Next 15 hands route params to the page as a promise.
+  params: Promise<{
     sessionId: string
-  }
+  }>
 }
 
 export default function AttendanceDetailPage({ params }: PageProps) {
+  const { sessionId } = use(params)
   const { data: attendanceSession, isLoading, error } = useQuery(
     orpc.management.attendances.getAttendanceSessionById.queryOptions({
-      input: { sessionId: params.sessionId },
+      input: { sessionId: sessionId },
     })
   ) as any
 
@@ -48,7 +52,7 @@ export default function AttendanceDetailPage({ params }: PageProps) {
         classroomGroup={attendanceSession.classroomGroup}
         createdBy={attendanceSession.createdBy}
         createdAt={attendanceSession.createdAt}
-        sessionId={params.sessionId}
+        sessionId={sessionId}
       />
 
       <div className="px-6">

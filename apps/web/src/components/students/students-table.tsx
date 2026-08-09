@@ -1,5 +1,6 @@
 'use client'
 
+import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
 import { Badge, Button, GenericTable } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
@@ -14,33 +15,7 @@ import {
 import { Building2, Edit, Eye, GraduationCap, Mail, Plus, User, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { StudentViewSheet } from './student-view-sheet'
-
-interface StudentEducationLevel {
-  id: string
-  level: number
-  displayNameAr: string | null
-}
-
-interface StudentClassroom {
-  id: string
-  name: string
-  code: string
-  academicYear: string
-  enrollmentDate: Date
-  enrollmentStatus: string
-  educationLevel: StudentEducationLevel
-}
-
-interface StudentListItem {
-  id: string
-  name: string
-  lastName: string
-  email: string
-  userType: 'student'
-  createdAt: Date
-  updatedAt: Date
-  classroom: StudentClassroom | null
-}
+import type { StudentListItem } from './types'
 
 interface StudentsTableProps {
   onEdit?: (studentId: string) => void
@@ -50,6 +25,7 @@ interface StudentsTableProps {
 const columnHelper = createColumnHelper<StudentListItem>()
 
 export function StudentsTable({ onEdit, onCreateNew }: StudentsTableProps) {
+  const { isPending: isRolePending } = usePermissions()
   const { data: students = [], isLoading, error } = useQuery(orpc.management.students.getStudentsList.queryOptions({}))
 
   // Type assertion for students data
@@ -333,6 +309,10 @@ export function StudentsTable({ onEdit, onCreateNew }: StudentsTableProps) {
       <Plus className="me-1 h-4 w-4" />
       إضافة طالب
     </Button>
+  ) : isRolePending ? (
+    // Space held while the role resolves, so the toolbar does not reflow when
+    // the button turns out to be allowed.
+    <div className="h-9 w-32" aria-hidden />
   ) : null
 
   if (typedStudents.length === 0 && !isLoading) {

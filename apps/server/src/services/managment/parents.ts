@@ -240,6 +240,9 @@ export class ParentManagementService {
 
     return {
       ...parent,
+      // The query filters on `user_type = 'parent'`, so the column's wide union
+      // narrows here rather than at the route's output schema.
+      userType: 'parent' as const,
       children: Array.from(childrenMap.values()),
     }
   }
@@ -292,11 +295,12 @@ export class ParentManagementService {
       })
       .returning()
 
-    if (result.length === 0) {
+    const [record] = result
+    if (!record) {
       throw new Error('Failed to create parent-student relation')
     }
 
-    return result[0]
+    return record
   }
 
   async updateParentStudentRelation(orgId: string, relationId: string, data: Partial<CreateParentStudentRelationData>) {
@@ -310,11 +314,10 @@ export class ParentManagementService {
       .from(parentStudentRelation)
       .where(eq(parentStudentRelation.id, relationId))
 
-    if (existingRelation.length === 0) {
+    const [relation] = existingRelation
+    if (!relation) {
       throw new Error('Parent-student relation not found')
     }
-
-    const relation = existingRelation[0]
 
     // Verify both users belong to organization
     const parentMember = await this.db
@@ -340,11 +343,12 @@ export class ParentManagementService {
       .where(eq(parentStudentRelation.id, relationId))
       .returning()
 
-    if (result.length === 0) {
+    const [record] = result
+    if (!record) {
       throw new Error('Failed to update parent-student relation')
     }
 
-    return result[0]
+    return record
   }
 
   async deleteParentStudentRelation(orgId: string, relationId: string) {
@@ -358,11 +362,10 @@ export class ParentManagementService {
       .from(parentStudentRelation)
       .where(eq(parentStudentRelation.id, relationId))
 
-    if (existingRelation.length === 0) {
+    const [relation] = existingRelation
+    if (!relation) {
       throw new Error('Parent-student relation not found')
     }
-
-    const relation = existingRelation[0]
 
     // Verify both users belong to organization
     const parentMember = await this.db

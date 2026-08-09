@@ -1,5 +1,7 @@
 'use client'
 
+import { use } from 'react'
+
 import { orpc } from '@/utils/orpc'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
@@ -9,18 +11,20 @@ import { ArrowLeft, Loader2 } from 'lucide-react'
 import { Button } from '@repo/ui'
 
 interface PageProps {
-  params: {
+  // Next 15 hands route params to the page as a promise.
+  params: Promise<{
     sessionId: string
-  }
+  }>
 }
 
 export default function EditAttendancePage({ params }: PageProps) {
+  const { sessionId } = use(params)
   const router = useRouter()
   const queryClient = useQueryClient()
 
   const { data: attendanceSession, isLoading, error } = useQuery(
     orpc.management.attendances.getAttendanceSessionById.queryOptions({
-      input: { sessionId: params.sessionId },
+      input: { sessionId: sessionId },
     })
   ) as any
 
@@ -34,11 +38,11 @@ export default function EditAttendancePage({ params }: PageProps) {
       })
       queryClient.invalidateQueries({
         queryKey: orpc.management.attendances.getAttendanceSessionById.queryKey({
-          input: { sessionId: params.sessionId },
+          input: { sessionId: sessionId },
         }),
       })
       // Navigate to detail page
-      router.push(`/dashboard/attendances/${params.sessionId}`)
+      router.push(`/dashboard/attendances/${sessionId}`)
     },
     onError: (error: any) => {
       toast.error(error.message || 'حدث خطأ أثناء تحديث سجل الحضور')
@@ -54,7 +58,7 @@ export default function EditAttendancePage({ params }: PageProps) {
   }
 
   const handleCancel = () => {
-    router.push(`/dashboard/attendances/${params.sessionId}`)
+    router.push(`/dashboard/attendances/${sessionId}`)
   }
 
   if (isLoading) {

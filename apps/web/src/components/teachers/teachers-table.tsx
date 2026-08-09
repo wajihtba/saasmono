@@ -1,5 +1,6 @@
 'use client'
 
+import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
 import { Badge, Button, GenericTable } from '@repo/ui'
 import { useQuery } from '@tanstack/react-query'
@@ -57,6 +58,7 @@ interface TeachersTableProps {
 const columnHelper = createColumnHelper<TeacherWithAssignments>()
 
 export function TeachersTable({ onEdit, onDelete, onCreateNew }: TeachersTableProps) {
+  const { isPending: isRolePending } = usePermissions()
   const { data: teachers = [], isLoading, error } = useQuery(orpc.management.teachers.getTeachersList.queryOptions())
 
   // Type assertion for teachers data
@@ -322,6 +324,10 @@ export function TeachersTable({ onEdit, onDelete, onCreateNew }: TeachersTablePr
       <Plus className="me-1 h-4 w-4" />
       إضافة معلم
     </Button>
+  ) : isRolePending ? (
+    // Space held while the role resolves, so the toolbar does not reflow when
+    // the button turns out to be allowed.
+    <div className="h-9 w-32" aria-hidden />
   ) : null
 
   if (typedTeachers.length === 0 && !isLoading) {

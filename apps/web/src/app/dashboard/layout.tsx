@@ -11,7 +11,7 @@ import {
 import { useOrgRole } from '@/hooks/use-org-role'
 import { useSessionStorage } from '@/hooks/use-session-storage'
 import { authClient } from '@/lib/auth-client'
-import { filterByHref, filterDrawerItems, filterSidebarData } from '@/lib/nav-access'
+import { filterByHref, filterByPermission, filterDrawerItems, filterSidebarData } from '@/lib/nav-access'
 import { canAccessRoute } from '@repo/rbac'
 import { DashboardLayout, MobileNav } from '@repo/ui'
 import { usePathname, useRouter } from 'next/navigation'
@@ -29,7 +29,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const sidebarData = useMemo(() => filterSidebarData(dashboardSidebarData, role), [role])
   const mobileNavItems = useMemo(() => filterByHref(dashboardMobileNavItems, role), [role])
   const drawerItems = useMemo(() => filterDrawerItems(dashboardMobileDrawerItems, role), [role])
-  const quickActions = useMemo(() => filterByHref(dashboardMobileQuickActions, role), [role])
+  // Both filters apply: the route has to be openable and the action has to be
+  // one the role may actually perform.
+  const quickActions = useMemo(
+    () => filterByPermission(filterByHref(dashboardMobileQuickActions, role), role),
+    [role]
+  )
 
   useEffect(() => {
     if (isRolePending || !pathname) return

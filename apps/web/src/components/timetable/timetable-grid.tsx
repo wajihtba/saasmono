@@ -104,7 +104,7 @@ export function TimetableGrid({ timetableData, isLoading, error, filters }: Time
     if (today && sessionsByDay[today]?.length) setSelectedDay(today)
   }, [sessionsByDay])
 
-  const activeDay = selectedDay ?? firstDayWithSessions ?? WEEKDAYS[0].key
+  const activeDay = selectedDay ?? firstDayWithSessions ?? WEEKDAYS[0]!.key
   const activeSessions = sessionsByDay[activeDay] ?? []
 
   // Process timetable data into grid format
@@ -115,10 +115,11 @@ export function TimetableGrid({ timetableData, isLoading, error, filters }: Time
 
     // Initialize grid
     WEEKDAYS.forEach(day => {
-      grid[day.key] = {}
+      const slots: Record<number, TimetableSession[]> = {}
       TIME_SLOTS.forEach(slot => {
-        grid[day.key][slot.start] = []
+        slots[slot.start] = []
       })
+      grid[day.key] = slots
     })
 
     // Populate grid with sessions
@@ -130,9 +131,10 @@ export function TimetableGrid({ timetableData, isLoading, error, filters }: Time
       // Map day of week to our weekday keys
       const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
       const dayKey = dayKeys[dayOfWeek]
+      const daySlots = dayKey ? grid[dayKey] : undefined
 
-      if (grid[dayKey] && hour >= 7 && hour < 19) {
-        grid[dayKey][hour].push(session)
+      if (daySlots && hour >= 7 && hour < 19) {
+        daySlots[hour]?.push(session)
       }
     })
 

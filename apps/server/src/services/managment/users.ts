@@ -1,7 +1,7 @@
 import { and, eq, isNull, sql } from 'drizzle-orm'
 import { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { member, user } from '../../db/schema/auth'
-import { parentStudentRelation } from '../../db/schema/users'
+import { parentStudentRelation, teacherEducationSubjectLevelAssignment } from '../../db/schema/users'
 import {
   type ParentStudentRelation,
   type UserListItem,

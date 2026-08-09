@@ -1,5 +1,6 @@
 'use client'
 
+import { formatDate, formatTime } from '@/lib/date'
 import { usePermissions } from '@/hooks/use-permissions'
 import { orpc } from '@/utils/orpc'
 import { Permission } from '@repo/rbac'
@@ -71,7 +72,7 @@ interface LatePassTicketsTableProps {
 const columnHelper = createColumnHelper<TicketListItem>()
 
 export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProps) {
-  const { can } = usePermissions()
+  const { can, isPending: isRolePending } = usePermissions()
 
   // Cancelling is the same authority as issuing; the roles that only read their
   // own tickets get the download and nothing else.
@@ -140,14 +141,6 @@ export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProp
         {config.label}
       </Badge>
     )
-  }
-
-  const formatDate = (date: Date) => {
-    return formatTime(date)
-  }
-
-  const formatTime = (date: Date) => {
-    return new Date(date)
   }
 
   const columns = useMemo(
@@ -396,6 +389,10 @@ export function LatePassTicketsTable({ onGenerateNew }: LatePassTicketsTableProp
       <Plus className="me-1 h-4 w-4" />
       إصدار تذكرة
     </Button>
+  ) : isRolePending ? (
+    // Space held while the role resolves, so the toolbar does not reflow when
+    // the button turns out to be allowed.
+    <div className="h-9 w-32" aria-hidden />
   ) : null
 
   if (typedTickets.length === 0 && !isLoading) {

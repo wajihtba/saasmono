@@ -193,26 +193,32 @@ export class StudentManagementService {
       }
     })
 
+    const [enrollment] = classroomEnrollment
+
     return {
       ...student,
       parents: parents || [],
-      classroom: classroomEnrollment[0] ? {
-        id: classroomEnrollment[0].classroomId,
-        name: classroomEnrollment[0].classroomName,
-        code: classroomEnrollment[0].classroomCode,
-        academicYear: classroomEnrollment[0].academicYear,
-        capacity: classroomEnrollment[0].capacity,
-        enrollmentDate: classroomEnrollment[0].enrollmentDate,
-        enrollmentStatus: classroomEnrollment[0].enrollmentStatus,
-        educationLevel: {
-          id: classroomEnrollment[0].educationLevelId,
-          level: classroomEnrollment[0].educationLevelLevel,
-          displayNameAr: classroomEnrollment[0].educationLevelDisplayNameAr,
-          displayNameEn: classroomEnrollment[0].educationLevelDisplayNameEn,
-          displayNameFr: classroomEnrollment[0].educationLevelDisplayNameFr,
-          section: classroomEnrollment[0].educationLevelSection,
-        },
-      } : null,
+      // The joins are left joins, so every column reads as nullable; a row that
+      // matched carries the columns its own table declares NOT NULL.
+      classroom: enrollment
+        ? {
+            id: enrollment.classroomId!,
+            name: enrollment.classroomName!,
+            code: enrollment.classroomCode!,
+            academicYear: enrollment.academicYear!,
+            capacity: enrollment.capacity,
+            enrollmentDate: enrollment.enrollmentDate,
+            enrollmentStatus: enrollment.enrollmentStatus,
+            educationLevel: {
+              id: enrollment.educationLevelId!,
+              level: enrollment.educationLevelLevel!,
+              displayNameAr: enrollment.educationLevelDisplayNameAr,
+              displayNameEn: enrollment.educationLevelDisplayNameEn,
+              displayNameFr: enrollment.educationLevelDisplayNameFr,
+              section: enrollment.educationLevelSection,
+            },
+          }
+        : null,
       groups: groupMemberships.map((group) => ({
         id: group.groupId,
         name: group.groupName,
@@ -299,14 +305,14 @@ export class StudentManagementService {
       updatedAt: row.studentUpdatedAt,
       classroom: row.classroomId ? {
         id: row.classroomId,
-        name: row.classroomName,
-        code: row.classroomCode,
-        academicYear: row.academicYear,
-        enrollmentDate: row.enrollmentDate,
-        enrollmentStatus: row.enrollmentStatus,
+        name: row.classroomName!,
+        code: row.classroomCode!,
+        academicYear: row.academicYear!,
+        enrollmentDate: row.enrollmentDate!,
+        enrollmentStatus: row.enrollmentStatus!,
         educationLevel: {
-          id: row.educationLevelId,
-          level: row.educationLevelLevel,
+          id: row.educationLevelId!,
+          level: row.educationLevelLevel!,
           displayNameAr: row.educationLevelDisplayNameAr,
         },
       } : null,
@@ -364,11 +370,12 @@ export class StudentManagementService {
       })
       .returning()
 
-    if (result.length === 0) {
+    const [record] = result
+    if (!record) {
       throw new Error('Failed to create student enrollment')
     }
 
-    return result[0]
+    return record
   }
 
   // Add student to group
@@ -424,11 +431,12 @@ export class StudentManagementService {
       })
       .returning()
 
-    if (result.length === 0) {
+    const [record] = result
+    if (!record) {
       throw new Error('Failed to create group membership')
     }
 
-    return result[0]
+    return record
   }
 
   // Remove student from classroom
@@ -460,11 +468,12 @@ export class StudentManagementService {
       .where(eq(classroomStudentEnrollment.id, enrollmentId))
       .returning()
 
-    if (result.length === 0) {
+    const [record] = result
+    if (!record) {
       throw new Error('Failed to update enrollment status')
     }
 
-    return result[0]
+    return record
   }
 
   // Remove student from group
@@ -495,11 +504,12 @@ export class StudentManagementService {
       .where(eq(classroomGroupMembership.id, membershipId))
       .returning()
 
-    if (result.length === 0) {
+    const [record] = result
+    if (!record) {
       throw new Error('Failed to update group membership status')
     }
 
-    return result[0]
+    return record
   }
 }
 

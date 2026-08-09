@@ -41,7 +41,7 @@ const columnHelper = createColumnHelper<SessionNoteListItem>()
 
 export function SessionNotesTable({ onCreateNew }: SessionNotesTableProps) {
   const router = useRouter()
-  const { canForOwn } = usePermissions()
+  const { canForOwn, isPending: isRolePending } = usePermissions()
   const { data: sessionNotes = [], isLoading, error } = useQuery(
     orpc.management.sessionNotes.getSessionNotesList.queryOptions({})
   )
@@ -252,6 +252,10 @@ export function SessionNotesTable({ onCreateNew }: SessionNotesTableProps) {
       <Plus className="me-1 h-4 w-4" />
       إضافة كراس قسم
     </Button>
+  ) : isRolePending ? (
+    // Space held while the role resolves, so the toolbar does not reflow when
+    // the button turns out to be allowed.
+    <div className="h-9 w-32" aria-hidden />
   ) : null
 
   if (typedNotes.length === 0 && !isLoading) {

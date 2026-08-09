@@ -375,7 +375,12 @@ describe('/management/students/ API Tests', () => {
       ]
 
       for (const endpoint of endpoints) {
-        const res = await request(app)[endpoint.method as keyof typeof request](endpoint.path)
+        const agent = request(app)
+        const res = await (endpoint.method === 'get'
+          ? agent.get(endpoint.path)
+          : endpoint.method === 'post'
+            ? agent.post(endpoint.path)
+            : agent.put(endpoint.path))
         expect(res.status).toBe(401)
       }
     })
